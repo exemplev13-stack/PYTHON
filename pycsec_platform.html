@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PySec Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0c10;
+  --bg2: #0f1218;
+  --bg3: #151920;
+  --bg4: #1c2230;
+  --border: #1e2533;
+  --border2: #2a3348;
+  --green: #00ff88;
+  --green2: #00cc6a;
+  --green-dim: rgba(0,255,136,0.08);
+  --green-dim2: rgba(0,255,136,0.15);
+  --blue: #4d9eff;
+  --blue-dim: rgba(77,158,255,0.1);
+  --amber: #ffb347;
+  --amber-dim: rgba(255,179,71,0.1);
+  --red: #ff5555;
+  --red-dim: rgba(255,85,85,0.1);
+  --purple: #b07fff;
+  --text: #e8edf5;
+  --text2: #8892a4;
+  --text3: #4a5568;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Syne', sans-serif;
+  --radius: 8px;
+  --radius2: 12px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* LAYOUT */
+.app{display:grid;grid-template-columns:260px 1fr;grid-template-rows:56px 1fr;height:100vh}
+
+/* TOPBAR */
+.topbar{grid-column:1/-1;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:16px;position:relative;z-index:10}
+.logo{font-family:var(--mono);font-weight:700;font-size:16px;color:var(--green);letter-spacing:-0.5px;display:flex;align-items:center;gap:8px}
+.logo-bracket{color:var(--text3)}
+.topbar-center{flex:1;display:flex;align-items:center;justify-content:center;gap:6px}
+.progress-track{width:200px;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--blue));border-radius:2px;transition:width .5s ease}
+.progress-label{font-family:var(--mono);font-size:11px;color:var(--text2)}
+.xp-badge{font-family:var(--mono);font-size:12px;color:var(--amber);background:var(--amber-dim);border:1px solid rgba(255,179,71,0.2);padding:4px 10px;border-radius:20px;margin-left:auto}
+
+/* SIDEBAR */
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;padding:16px 0}
+.sidebar-section{padding:0 12px;margin-bottom:4px}
+.sidebar-label{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:1px;padding:8px 8px 4px;text-transform:uppercase}
+.module-btn{width:100%;background:none;border:none;text-align:left;padding:8px 10px;border-radius:var(--radius);cursor:pointer;color:var(--text2);font-family:var(--sans);font-size:13px;display:flex;align-items:center;gap:10px;transition:all .15s;position:relative}
+.module-btn:hover{background:var(--bg4);color:var(--text)}
+.module-btn.active{background:var(--green-dim2);color:var(--green);border-left:2px solid var(--green)}
+.module-btn.completed{color:var(--text2)}
+.module-btn .dot{width:8px;height:8px;border-radius:50%;background:var(--border2);flex-shrink:0}
+.module-btn.active .dot{background:var(--green)}
+.module-btn.completed .dot{background:var(--text3)}
+.lesson-btn{width:100%;background:none;border:none;text-align:left;padding:6px 10px 6px 28px;border-radius:var(--radius);cursor:pointer;color:var(--text3);font-family:var(--mono);font-size:11px;display:flex;align-items:center;gap:8px;transition:all .15s}
+.lesson-btn:hover{color:var(--text2);background:var(--bg3)}
+.lesson-btn.active{color:var(--green)}
+.lesson-btn.done{color:var(--text3)}
+.lesson-btn .tick{color:var(--green);font-size:10px}
+.mod-num{font-family:var(--mono);font-size:10px;color:var(--text3);min-width:20px}
+
+/* MAIN */
+.main{display:grid;grid-template-rows:1fr auto;overflow:hidden;background:var(--bg)}
+
+/* CONTENT AREA */
+.content-area{overflow-y:auto;padding:32px 40px;max-width:900px;width:100%}
+
+/* LESSON HEADER */
+.lesson-header{margin-bottom:28px}
+.lesson-tag{font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:10px}
+.tag-beginner{background:rgba(0,255,136,0.1);color:var(--green);border:1px solid rgba(0,255,136,0.2)}
+.tag-intermediate{background:rgba(77,158,255,0.1);color:var(--blue);border:1px solid rgba(77,158,255,0.2)}
+.tag-advanced{background:rgba(255,179,71,0.1);color:var(--amber);border:1px solid rgba(255,179,71,0.2)}
+.tag-expert{background:rgba(176,127,255,0.1);color:var(--purple);border:1px solid rgba(176,127,255,0.2)}
+.lesson-title{font-size:26px;font-weight:800;color:var(--text);line-height:1.2;margin-bottom:8px}
+.lesson-desc{font-family:var(--mono);font-size:13px;color:var(--text2);line-height:1.6}
+
+/* THEORY */
+.theory-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:20px 24px;margin-bottom:20px}
+.theory-block h3{font-size:14px;font-weight:600;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.theory-block h3::before{content:'';display:block;width:3px;height:16px;background:var(--blue);border-radius:2px}
+.theory-block p{font-family:var(--mono);font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:10px}
+
+/* CODE BLOCK */
+.code-block{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:12px 0}
+.code-header{background:var(--bg3);padding:8px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.code-lang{font-family:var(--mono);font-size:10px;color:var(--text3)}
+.copy-btn{background:none;border:none;color:var(--text3);font-family:var(--mono);font-size:10px;cursor:pointer;padding:2px 8px;border-radius:4px;transition:all .15s}
+.copy-btn:hover{color:var(--green);background:var(--green-dim)}
+.code-body{padding:16px;font-family:var(--mono);font-size:12.5px;line-height:1.7;overflow-x:auto;white-space:pre}
+.kw{color:#ff79c6}
+.fn{color:#50fa7b}
+.str{color:#f1fa8c}
+.cm{color:#6272a4;font-style:italic}
+.num{color:#bd93f9}
+.var{color:#8be9fd}
+
+/* EXERCISE */
+.exercise-card{border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;margin-bottom:20px}
+.ex-header{background:var(--bg3);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.ex-title{font-size:14px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:10px}
+.ex-badge{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px;background:var(--amber-dim);color:var(--amber)}
+.ex-body{padding:20px}
+.ex-body p{font-family:var(--mono);font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:14px}
+.expected{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px}
+.expected-label{font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
+.expected pre{font-family:var(--mono);font-size:12px;color:var(--green);line-height:1.6}
+
+/* EDITOR */
+.editor-wrapper{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px}
+.editor-toolbar{background:var(--bg3);padding:8px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
+.editor-dot{width:10px;height:10px;border-radius:50%}
+.d-red{background:#ff5f56}
+.d-amber{background:#ffbd2e}
+.d-green{background:#27c93f}
+.editor-filename{font-family:var(--mono);font-size:11px;color:var(--text3);margin-left:4px}
+.code-editor{width:100%;background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;line-height:1.7;padding:16px;border:none;outline:none;resize:vertical;min-height:140px;tab-size:4}
+.editor-actions{display:flex;gap:8px;align-items:center}
+.btn{font-family:var(--mono);font-size:12px;padding:7px 16px;border-radius:var(--radius);border:none;cursor:pointer;transition:all .15s;font-weight:500}
+.btn-run{background:var(--green);color:#000}
+.btn-run:hover{background:var(--green2)}
+.btn-hint{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(255,179,71,0.2)}
+.btn-hint:hover{background:rgba(255,179,71,0.2)}
+.btn-solution{background:var(--bg4);color:var(--text2);border:1px solid var(--border2)}
+.btn-solution:hover{color:var(--text);background:var(--bg3)}
+.btn-next{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(77,158,255,0.2);padding:7px 20px}
+.btn-next:hover{background:rgba(77,158,255,0.2)}
+
+/* OUTPUT */
+.output-panel{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;display:none}
+.output-panel.visible{display:block}
+.output-header{background:var(--bg3);padding:6px 14px;font-family:var(--mono);font-size:10px;color:var(--text3);border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:0.5px}
+.output-body{padding:14px;font-family:var(--mono);font-size:12.5px;line-height:1.7;white-space:pre-wrap}
+.output-body.success{color:var(--green)}
+.output-body.error{color:var(--red)}
+.output-body.info{color:var(--text2)}
+
+/* HINT */
+.hint-panel{background:var(--amber-dim);border:1px solid rgba(255,179,71,0.2);border-radius:var(--radius);padding:12px 16px;margin-bottom:12px;font-family:var(--mono);font-size:12.5px;color:var(--amber);line-height:1.6;display:none}
+.hint-panel.visible{display:block}
+
+/* SOLUTION */
+.solution-panel{display:none;margin-bottom:12px}
+.solution-panel.visible{display:block}
+.solution-label{font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+
+/* PROJECT CARD */
+.project-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:24px;margin-bottom:20px;position:relative;overflow:hidden}
+.project-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),var(--blue))}
+.project-title{font-size:18px;font-weight:700;color:var(--text);margin-bottom:6px}
+.project-desc{font-family:var(--mono);font-size:12.5px;color:var(--text2);line-height:1.6;margin-bottom:16px}
+.project-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.ptag{font-family:var(--mono);font-size:11px;padding:3px 8px;border-radius:4px;background:var(--bg4);color:var(--text3);border:1px solid var(--border)}
+.project-actions{display:flex;gap:8px}
+
+/* TABS */
+.tabs{display:flex;gap:2px;margin-bottom:24px;background:var(--bg2);border-radius:var(--radius);padding:4px;border:1px solid var(--border)}
+.tab{flex:1;padding:8px 12px;border:none;background:none;color:var(--text2);font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;border-radius:6px;transition:all .15s}
+.tab.active{background:var(--bg4);color:var(--text)}
+.tab:hover:not(.active){color:var(--text)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:100;display:none}
+.modal-overlay.visible{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius2);padding:28px;max-width:480px;width:90%;text-align:center}
+.modal h3{font-size:20px;font-weight:700;color:var(--green);margin-bottom:8px}
+.modal p{font-family:var(--mono);font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px}
+.modal-xp{font-size:32px;font-weight:800;color:var(--amber);margin:12px 0}
+
+/* WELCOME */
+.welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center;padding:40px}
+.welcome-ascii{font-family:var(--mono);font-size:11px;color:var(--green);line-height:1.3;margin-bottom:24px;opacity:0.6}
+.welcome h1{font-size:36px;font-weight:800;margin-bottom:12px;background:linear-gradient(135deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.welcome p{font-family:var(--mono);font-size:14px;color:var(--text2);max-width:500px;line-height:1.7;margin-bottom:28px}
+.welcome-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:480px;width:100%;margin-bottom:28px}
+.welcome-stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center}
+.welcome-stat .num{font-size:22px;font-weight:800;color:var(--green);font-family:var(--mono)}
+.welcome-stat .lbl{font-family:var(--mono);font-size:11px;color:var(--text3);margin-top:4px}
+.btn-start{background:var(--green);color:#000;font-family:var(--sans);font-weight:700;font-size:14px;padding:12px 32px;border-radius:var(--radius);border:none;cursor:pointer;transition:all .2s}
+.btn-start:hover{background:var(--green2);transform:translateY(-1px)}
+
+/* ANIMATIONS */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn .3s ease forwards}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.running{animation:pulse .8s infinite}
+
+/* RESPONSIVE */
+@media(max-width:700px){
+  .app{grid-template-columns:1fr;grid-template-rows:56px auto 1fr}
+  .sidebar{display:none}
+  .content-area{padding:20px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="logo"><span class="logo-bracket">[</span>Py<span style="color:var(--text2)">Sec</span>Academy<span class="logo-bracket">]</span></div>
+  <div class="topbar-center">
+    <span class="progress-label" id="progressLabel">0 / 24 leçons</span>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+  <div class="xp-badge">⚡ <span id="xpCount">0</span> XP</div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar"></div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="content-area" id="contentArea"></div>
+</div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3 id="modalTitle">Exercice réussi !</h3>
+    <div class="modal-xp" id="modalXp">+50 XP</div>
+    <p id="modalText">Bien joué ! Ton code produit le bon résultat.</p>
+    <button class="btn btn-next" onclick="closeModal()">Continuer →</button>
+  </div>
+</div>
+
+<script>
+const CURRICULUM = [
+  {
+    id:'m1', title:'Fondations Python', level:'Débutant', tagClass:'tag-beginner',
+    lessons:[
+      {
+        id:'m1l1', title:'Variables & types', xp:30,
+        theory:`En Python, pas besoin de déclarer le type — il est inféré automatiquement. C'est la base de tout outil cybersec : stocker des IPs, des ports, des credentials.`,
+        code:`ip     = "192.168.1.10"    # str
+port   = 80              # int
+version = 4.9            # float
+actif  = True            # bool
+
+print(type(ip))          # <class 'str'>
+print(hex(255))          # 0xff
+print(int("ff", 16))     # 255  ← hex vers int`,
+        exercises:[
+          {
+            id:'e1',title:'Infos de cible',xp:30,
+            desc:`Crée 4 variables : une IP (str), un port (int), un username (str), un statut en ligne (bool). Affiche chacune avec son type via type().`,
+            expected:`192.168.1.10 → <class 'str'>\n80 → <class 'int'>\nadmin → <class 'str'>\nTrue → <class 'bool'>`,
+            hint:`Utilise print(variable, "→", type(variable)) pour chaque variable.`,
+            starter:`# Déclare tes 4 variables ici
+ip = 
+port = 
+user = 
+online = 
+
+# Affiche chacune avec son type
+`,
+            solution:`ip     = "192.168.1.10"\nport   = 80\nuser   = "admin"\nonline = True\n\nprint(ip,     "→", type(ip))\nprint(port,   "→", type(port))\nprint(user,   "→", type(user))\nprint(online, "→", type(online))`,
+            check: code => code.includes('type(') && code.includes('192.168') && code.includes('True')
+          },
+          {
+            id:'e2',title:'Conversions hex',xp:30,
+            desc:`Convertis la string "443" en int. Affiche port * 2, puis hex(port). Résultat attendu : 886 puis 0x1bb`,
+            expected:`886\n0x1bb`,
+            hint:`int("443") convertit la string. hex() convertit un entier en hexadécimal.`,
+            starter:`port_str = "443"\n# Convertis en int\nport = \n# Affiche port * 2\n\n# Affiche hex(port)\n`,
+            solution:`port_str = "443"\nport = int(port_str)\nprint(port * 2)\nprint(hex(port))`,
+            check: code => code.includes('int(') && code.includes('hex(')
+          }
+        ]
+      },
+      {
+        id:'m1l2', title:'F-strings & input', xp:30,
+        theory:`Les f-strings permettent d'insérer des variables dans du texte. Indispensable pour afficher des résultats proprement dans tes outils.`,
+        code:`ip   = "10.10.10.1"
+port = 80
+
+# f-string de base
+print(f"[*] Scan de {ip}:{port}")
+
+# Alignement (utile pour les tableaux de résultats)
+status = "OPEN"
+print(f"Port {port:>5} │ {status:<8}")
+
+# input() — récupère la saisie utilisateur
+cible = input("IP cible : ")`,
+        exercises:[
+          {
+            id:'e3',title:'Banner d\'outil',xp:30,
+            desc:`Demande à l'utilisateur une IP, un port et un protocole (tcp/udp). Affiche :\n[*] Scan de 192.168.1.1:80 (TCP) en cours...`,
+            expected:`[*] Scan de 192.168.1.1:80 (TCP) en cours...`,
+            hint:`input() retourne une str. Utilise .upper() pour mettre TCP en majuscule.`,
+            starter:`ip    = input("IP cible  : ")\nport  = input("Port      : ")\nproto = input("Protocole : ")\n\n# Affiche la ligne de banner\n`,
+            solution:`ip    = input("IP cible  : ")\nport  = input("Port      : ")\nproto = input("Protocole : ").upper()\nprint(f"[*] Scan de {ip}:{port} ({proto}) en cours...")`,
+            check: code => code.includes('input(') && code.includes('f"') || code.includes("f'")
+          },
+          {
+            id:'e4',title:'Validation port',xp:40,
+            desc:`Demande un nombre de ports à scanner. Si < 0 : affiche "[-] Erreur : valeur négative." Sinon : "[+] Scan de N ports lancé."`,
+            expected:`[+] Scan de 1024 ports lancé.`,
+            hint:`Convertis l'input en int avec int(). Utilise if/else pour la condition.`,
+            starter:`n = int(input("Nombre de ports : "))\n\n# Vérifie si n est négatif\n`,
+            solution:`n = int(input("Nombre de ports : "))\nif n < 0:\n    print("[-] Erreur : valeur négative.")\nelse:\n    print(f"[+] Scan de {n} ports lancé.")`,
+            check: code => code.includes('if') && code.includes('else') && code.includes('int(')
+          }
+        ]
+      },
+      {
+        id:'m1l3', title:'Conditions & boucles', xp:30,
+        theory:`Les boucles sont le moteur de tout scanner. Une boucle for sur range(1, 65536) te permet de parcourir tous les ports TCP. Le while sert pour les tentatives répétées (brute-force simulé).`,
+        code:`# Identifier un service par son port
+port = 22
+if port == 22:
+    print("SSH")
+elif port == 80:
+    print("HTTP")
+else:
+    print("Inconnu")
+
+# Scanner une plage de ports
+for p in range(20, 26):
+    print(f"Scan port {p}...")
+
+# Brute-force simulé
+for pwd in ["admin","root","password"]:
+    if pwd == "root":
+        print(f"[+] Trouvé : {pwd}")
+        break
+    print(f"[-] Échec : {pwd}")`,
+        exercises:[
+          {
+            id:'e5',title:'Service detector',xp:40,
+            desc:`Écris une boucle for sur les ports 20-25. Pour chaque port, affiche son service en utilisant un dict. Services : 20=FTP-data, 21=FTP, 22=SSH, 23=Telnet, 25=SMTP. Ports inconnus → "inconnu".`,
+            expected:`Port 20 → FTP-data\nPort 21 → FTP\nPort 22 → SSH\nPort 23 → Telnet\nPort 24 → inconnu\nPort 25 → SMTP`,
+            hint:`Crée un dict : services = {20:"FTP-data", ...}. Utilise services.get(port, "inconnu").`,
+            starter:`services = {20:"FTP-data", 21:"FTP", 22:"SSH", 23:"Telnet", 25:"SMTP"}\n\nfor port in range(20, 26):\n    # Récupère le service avec .get()\n    service = \n    print()\n`,
+            solution:`services = {20:"FTP-data",21:"FTP",22:"SSH",23:"Telnet",25:"SMTP"}\n\nfor port in range(20, 26):\n    service = services.get(port, "inconnu")\n    print(f"Port {port} → {service}")`,
+            check: code => code.includes('for') && code.includes('range') && code.includes('.get(')
+          },
+          {
+            id:'e6',title:'Brute-force simulé',xp:50,
+            desc:`Wordlist : ["admin","password","123456","letmein","root"]. Cible : "letmein". Parcours et affiche :\n[-] admin → échec\n[+] letmein → SUCCÈS !`,
+            expected:`[-] Tentative : admin          → échec\n[-] Tentative : password       → échec\n[-] Tentative : 123456         → échec\n[+] Tentative : letmein        → SUCCÈS !`,
+            hint:`Utilise break pour arrêter la boucle dès que le mot de passe est trouvé. f"[-] Tentative : {pwd:<15}"`,
+            starter:`wordlist = ["admin","password","123456","letmein","root"]\ncible    = "letmein"\n\nfor pwd in wordlist:\n    # Vérifie et affiche\n`,
+            solution:`wordlist = ["admin","password","123456","letmein","root"]\ncible    = "letmein"\n\nfor pwd in wordlist:\n    if pwd == cible:\n        print(f"[+] Tentative : {pwd:<15} → SUCCÈS !")\n        break\n    print(f"[-] Tentative : {pwd:<15} → échec")`,
+            check: code => code.includes('for') && code.includes('break') && code.includes('cible')
+          }
+        ]
+      },
+      {
+        id:'m1l4', title:'Fonctions', xp:30,
+        theory:`Les fonctions te permettent de réutiliser du code. Chaque outil que tu écriras sera un ensemble de fonctions. Bonne pratique : 1 fonction = 1 tâche précise.`,
+        code:`def identifier_service(port):
+    """Retourne le service associé à un port."""
+    services = {21:"FTP", 22:"SSH", 80:"HTTP", 443:"HTTPS"}
+    return services.get(port, "inconnu")
+
+# Paramètre par défaut
+def afficher_cible(ip, port=80, proto="TCP"):
+    print(f"[*] {ip}:{port} ({proto})")
+
+print(identifier_service(22))   # SSH
+afficher_cible("10.10.10.1")     # [*] 10.10.10.1:80 (TCP)`,
+        exercises:[
+          {
+            id:'e7',title:'Fonction service',xp:40,
+            desc:`Écris une fonction identifier_service(port) qui retourne "SSH","HTTP","HTTPS","FTP" ou "inconnu". Teste sur les ports : 22, 80, 443, 21, 9999.`,
+            expected:`22 → SSH\n80 → HTTP\n443 → HTTPS\n21 → FTP\n9999 → inconnu`,
+            hint:`def identifier_service(port): ... return dict.get(port, "inconnu"). Appelle-la dans une boucle.`,
+            starter:`def identifier_service(port):\n    services = {}\n    return \n\nfor p in [22, 80, 443, 21, 9999]:\n    print()\n`,
+            solution:`def identifier_service(port):\n    services = {21:"FTP",22:"SSH",80:"HTTP",443:"HTTPS"}\n    return services.get(port, "inconnu")\n\nfor p in [22, 80, 443, 21, 9999]:\n    print(f"{p} → {identifier_service(p)}")`,
+            check: code => code.includes('def ') && code.includes('return') && code.includes('get(')
+          },
+          {
+            id:'e8',title:'Générateur de wordlist',xp:60,
+            desc:`Écris une fonction generer_wordlist(base, debut, fin) qui retourne une liste comme ["admin1","admin2","admin3"]. Affiche le résultat de generer_wordlist("admin", 1, 5).`,
+            expected:`['admin1', 'admin2', 'admin3', 'admin4', 'admin5']`,
+            hint:`Utilise une list comprehension : [f"{base}{i}" for i in range(debut, fin+1)]`,
+            starter:`def generer_wordlist(base, debut, fin):\n    # Retourne une liste de mots avec suffixes numériques\n    return \n\nresult = generer_wordlist("admin", 1, 5)\nprint(result)\n`,
+            solution:`def generer_wordlist(base, debut, fin):\n    return [f"{base}{i}" for i in range(debut, fin+1)]\n\nresult = generer_wordlist("admin", 1, 5)\nprint(result)`,
+            check: code => code.includes('def generer') && code.includes('return') && code.includes('range(')
+          }
+        ]
+      }
+    ],
+    project:{
+      title:'Générateur de wordlist',
+      desc:'Un vrai outil CLI qui génère des variantes d\'un mot (majuscules, leetspeak, suffixes numériques) et sauvegarde dans un fichier .txt.',
+      tags:['fonctions','boucles','f-strings','fichiers I/O'],
+      solution:`def leet(mot):\n    return mot.replace("a","@").replace("e","3").replace("i","1").replace("o","0")\n\ndef generer(base, num_min, num_max):\n    mots = []\n    for v in [base, base.upper(), base.capitalize(), leet(base)]:\n        mots.append(v)\n        for n in range(num_min, num_max+1):\n            mots.append(f"{v}{n}")\n            mots.append(f"{v}_{n}")\n    return mots\n\nbase    = input("Mot de base  : ")\nnum_min = int(input("Min          : "))\nnum_max = int(input("Max          : "))\nfichier = input("Sortie .txt  : ") or "wordlist.txt"\n\nwl = generer(base, num_min, num_max)\nwith open(fichier, "w") as f:\n    for m in wl: f.write(m+"\\n")\n\nprint(f"\\n[+] {len(wl)} mots → {fichier}")`
+    }
+  },
+  {
+    id:'m2', title:'Structures & manipulation', level:'Débutant', tagClass:'tag-beginner',
+    lessons:[
+      {
+        id:'m2l1', title:'Listes & dictionnaires', xp:30,
+        theory:`Les listes et dicts sont au cœur de tout outil de scan. Une liste de ports, un dict IP→statut, un dict de credentials — tu les utiliseras partout.`,
+        code:`# Liste de ports à scanner
+ports  = [21, 22, 80, 443, 8080]
+ports.append(3306)        # ajout
+ports.remove(21)          # suppression
+print(ports[0])           # accès par index → 22
+
+# Dict : IP → statut
+resultats = {}
+resultats["10.10.10.1"] = "OPEN"
+resultats["10.10.10.2"] = "CLOSED"
+
+for ip, statut in resultats.items():
+    print(f"{ip:>15} │ {statut}")`,
+        exercises:[
+          {
+            id:'e9',title:'Gestionnaire de ports',xp:40,
+            desc:`Crée une liste de ports [80,443,22,8080,3306]. Ajoute le port 21. Supprime le 8080. Affiche la liste finale triée avec sorted().`,
+            expected:`[21, 22, 80, 443, 3306]`,
+            hint:`list.append(), list.remove(), print(sorted(liste))`,
+            starter:`ports = [80, 443, 22, 8080, 3306]\n# Ajoute 21\n\n# Supprime 8080\n\n# Affiche triée\n`,
+            solution:`ports = [80, 443, 22, 8080, 3306]\nports.append(21)\nports.remove(8080)\nprint(sorted(ports))`,
+            check: code => code.includes('append(') && code.includes('remove(') && code.includes('sorted(')
+          },
+          {
+            id:'e10',title:'Résultats de scan',xp:50,
+            desc:`Crée un dict avec 3 IPs et leur statut (OPEN/CLOSED). Affiche uniquement les IPs avec statut OPEN avec [+] devant.`,
+            expected:`[+] 10.10.10.1\n[+] 10.10.10.3`,
+            hint:`for ip, statut in dict.items(): if statut == "OPEN": print(...)`,
+            starter:`resultats = {\n    "10.10.10.1": "OPEN",\n    "10.10.10.2": "CLOSED",\n    "10.10.10.3": "OPEN"\n}\n# Affiche seulement les OPEN\n`,
+            solution:`resultats = {"10.10.10.1":"OPEN","10.10.10.2":"CLOSED","10.10.10.3":"OPEN"}\nfor ip, statut in resultats.items():\n    if statut == "OPEN":\n        print(f"[+] {ip}")`,
+            check: code => code.includes('.items()') && code.includes('== "OPEN"')
+          }
+        ]
+      },
+      {
+        id:'m2l2', title:'Regex', xp:40,
+        theory:`Les expressions régulières (regex) sont essentielles pour extraire des IPs, emails, URLs, hashes depuis des logs ou du texte brut. Module re intégré à Python.`,
+        code:`import re
+
+texte = "Connexion de 192.168.1.1 refusée. Contact: admin@site.com"
+
+# Extraire IPs
+ips   = re.findall(r'\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b', texte)
+print(ips)   # ['192.168.1.1']
+
+# Extraire emails
+mails = re.findall(r'[\w.-]+@[\w.-]+\.\w+', texte)
+print(mails) # ['admin@site.com']
+
+# Tester un pattern
+if re.search(r'refusée', texte):
+    print("[!] Tentative bloquée détectée")`,
+        exercises:[
+          {
+            id:'e11',title:'Extracteur d\'IPs',xp:50,
+            desc:`Depuis ce texte de log, extrais toutes les IPs :\n"[ERR] 10.0.0.1 → 192.168.1.50 port 22 denied. Retry from 172.16.0.5"`,
+            expected:`['10.0.0.1', '192.168.1.50', '172.16.0.5']`,
+            hint:`re.findall(r'\\b\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\b', texte)`,
+            starter:`import re\n\nlog = "[ERR] 10.0.0.1 → 192.168.1.50 port 22 denied. Retry from 172.16.0.5"\n\n# Extrais toutes les IPs\nips = \nprint(ips)\n`,
+            solution:`import re\nlog = "[ERR] 10.0.0.1 → 192.168.1.50 port 22 denied. Retry from 172.16.0.5"\nips = re.findall(r'\\b\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\b', log)\nprint(ips)`,
+            check: code => code.includes('import re') && code.includes('findall')
+          },
+          {
+            id:'e12',title:'Détecteur de hashes MD5',xp:60,
+            desc:`Extrais tous les hashes MD5 (32 caractères hexadécimaux) depuis ce texte :\n"Hash1: 5f4dcc3b5aa765d61d8327deb882cf99 Hash2: abc123 Hash3: 098f6bcd4621d373cade4e832627b4f6"`,
+            expected:`['5f4dcc3b5aa765d61d8327deb882cf99', '098f6bcd4621d373cade4e832627b4f6']`,
+            hint:`Pattern MD5 : r'\\b[a-f0-9]{32}\\b' — 32 chars hex exactement.`,
+            starter:`import re\n\ntexte = "Hash1: 5f4dcc3b5aa765d61d8327deb882cf99 Hash2: abc123 Hash3: 098f6bcd4621d373cade4e832627b4f6"\n\nhashes = \nprint(hashes)\n`,
+            solution:`import re\ntexte = "Hash1: 5f4dcc3b5aa765d61d8327deb882cf99 Hash2: abc123 Hash3: 098f6bcd4621d373cade4e832627b4f6"\nhashes = re.findall(r'\\b[a-f0-9]{32}\\b', texte)\nprint(hashes)`,
+            check: code => code.includes('import re') && code.includes('{32}')
+          }
+        ]
+      }
+    ],
+    project:{
+      title:'Parser de logs Apache',
+      desc:'Analyse un fichier access.log, extrait les IPs, compte les requêtes par IP, détecte les codes 404/500, et génère un rapport en console.',
+      tags:['regex','listes','dicts','fichiers','argparse'],
+      solution:`import re, sys\nfrom collections import Counter\n\ndef analyser_log(fichier):\n    compteur = Counter()\n    erreurs  = []\n    try:\n        with open(fichier) as f:\n            for ligne in f:\n                ip = re.search(r'^(\\S+)', ligne)\n                code = re.search(r'" (\\d{3}) ', ligne)\n                if ip: compteur[ip.group(1)] += 1\n                if code and code.group(1) in ('404','500'):\n                    erreurs.append(ligne.strip())\n    except FileNotFoundError:\n        print(f"[-] Fichier introuvable : {fichier}"); return\n\n    print("\\n=== TOP 5 IPs ===")\n    for ip, n in compteur.most_common(5):\n        print(f"  {ip:<20} {n} requêtes")\n    print(f"\\n[!] {len(erreurs)} erreurs 4xx/5xx détectées")\n\nanalyser_log(sys.argv[1] if len(sys.argv)>1 else "access.log")`
+    }
+  },
+  {
+    id:'m3', title:'Réseau & sockets', level:'Intermédiaire', tagClass:'tag-intermediate',
+    lessons:[
+      {
+        id:'m3l1', title:'Sockets TCP', xp:50,
+        theory:`Le module socket est la fondation de tout outil réseau en Python. Un socket TCP c'est : créer → connecter → envoyer/recevoir → fermer. La base d'un scanner de ports.`,
+        code:`import socket
+
+# Connexion simple
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.settimeout(1)  # timeout 1 seconde
+
+try:
+    s.connect(("scanme.nmap.org", 80))
+    print("[+] Port 80 OPEN")
+    s.send(b"HEAD / HTTP/1.0\r\n\r\n")
+    banner = s.recv(1024)
+    print(banner.decode(errors="ignore"))
+except:
+    print("[-] Port fermé ou timeout")
+finally:
+    s.close()`,
+        exercises:[
+          {
+            id:'e13',title:'Scanner de port simple',xp:60,
+            desc:`Écris une fonction scan_port(ip, port) qui retourne True si le port est ouvert, False sinon (timeout = 0.5s). Teste sur 3 ports différents de scanme.nmap.org.`,
+            expected:`[+] 80  : OPEN\n[-] 81  : CLOSED\n[+] 22  : OPEN`,
+            hint:`socket.connect() lève une exception si le port est fermé. Utilise try/except.`,
+            starter:`import socket\n\ndef scan_port(ip, port):\n    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\n    s.settimeout(0.5)\n    try:\n        # Tente la connexion\n        \n        return True\n    except:\n        return False\n    finally:\n        s.close()\n\nip = "scanme.nmap.org"\nfor port in [80, 81, 22]:\n    statut = "OPEN" if scan_port(ip, port) else "CLOSED"\n    print(f"{'[+]' if statut=='OPEN' else '[-]'} {port:<5}: {statut}")\n`,
+            solution:`import socket\n\ndef scan_port(ip, port):\n    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\n    s.settimeout(0.5)\n    try:\n        s.connect((ip, port))\n        return True\n    except:\n        return False\n    finally:\n        s.close()\n\nip = "scanme.nmap.org"\nfor port in [80, 81, 22]:\n    statut = "OPEN" if scan_port(ip, port) else "CLOSED"\n    print(f"{'[+]' if statut=='OPEN' else '[-]'} {port:<5}: {statut}")`,
+            check: code => code.includes('socket.socket') && code.includes('settimeout') && code.includes('try:')
+          },
+          {
+            id:'e14',title:'Banner grabbing',xp:70,
+            desc:`Connecte-toi en TCP sur scanme.nmap.org:80, envoie "HEAD / HTTP/1.0\\r\\n\\r\\n", reçois la réponse et affiche la première ligne du banner.`,
+            expected:`HTTP/1.1 200 OK  (ou similaire)`,
+            hint:`s.send(b"HEAD / HTTP/1.0\\r\\n\\r\\n")  puis  data = s.recv(1024).decode()`,
+            starter:`import socket\n\ns = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\ns.settimeout(3)\n\ntry:\n    s.connect(("scanme.nmap.org", 80))\n    # Envoie la requête\n    \n    # Reçois et affiche la 1ère ligne\n    data = \n    print(data.split("\\n")[0])\nexcept Exception as e:\n    print(f"Erreur : {e}")\nfinally:\n    s.close()\n`,
+            solution:`import socket\ns = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\ns.settimeout(3)\ntry:\n    s.connect(("scanme.nmap.org", 80))\n    s.send(b"HEAD / HTTP/1.0\\r\\n\\r\\n")\n    data = s.recv(1024).decode(errors="ignore")\n    print(data.split("\\n")[0])\nexcept Exception as e:\n    print(f"Erreur : {e}")\nfinally:\n    s.close()`,
+            check: code => code.includes('socket.socket') && code.includes('send(') && code.includes('recv(')
+          }
+        ]
+      }
+    ],
+    project:{
+      title:'Scanner de ports multithread',
+      desc:'Scanner TCP avec threading, banner grabbing, détection de services, sortie colorée et export JSON. Usage : python scanner.py -t 10.10.10.1 -p 1-1024 --threads 100',
+      tags:['socket','threading','argparse','JSON','banner grabbing'],
+      solution:`import socket, threading, argparse, json\nfrom queue import Queue\n\nresults = []\nlock = threading.Lock()\n\ndef scan(ip, port, timeout=0.5):\n    try:\n        s = socket.socket()\n        s.settimeout(timeout)\n        s.connect((ip, port))\n        try:\n            s.send(b"HEAD / HTTP/1.0\\r\\n\\r\\n")\n            banner = s.recv(256).decode(errors="ignore").split("\\n")[0]\n        except: banner = ""\n        with lock:\n            results.append({"port":port,"status":"OPEN","banner":banner})\n            print(f"[+] {port:<6} OPEN  {banner[:50]}")\n        s.close()\n    except: pass\n\ndef worker(q, ip):\n    while not q.empty():\n        port = q.get()\n        scan(ip, port)\n        q.task_done()\n\nap = argparse.ArgumentParser()\nap.add_argument("-t","--target",required=True)\nap.add_argument("-p","--ports",default="1-1024")\nap.add_argument("--threads",type=int,default=100)\nargs = ap.parse_args()\n\nstart,end = map(int,args.ports.split("-"))\nq = Queue()\nfor p in range(start,end+1): q.put(p)\n\nprint(f"[*] Scan {args.target} ports {args.ports} ({args.threads} threads)\\n")\nthreads=[threading.Thread(target=worker,args=(q,args.target)) for _ in range(args.threads)]\nfor t in threads: t.start()\nfor t in threads: t.join()\n\nwith open("scan_results.json","w") as f:\n    json.dump({"target":args.target,"ports":results},f,indent=2)\nprint(f"\\n[+] {len(results)} ports ouverts → scan_results.json")`
+    }
+  },
+  {
+    id:'m4', title:'Scripting offensif', level:'Avancé', tagClass:'tag-advanced',
+    lessons:[
+      {
+        id:'m4l1', title:'Requêtes HTTP & sessions', xp:60,
+        theory:`Le module requests simplifie énormément les requêtes HTTP. Avec les sessions, tu maintiens les cookies automatiquement — parfait pour l'authentification web et les exploits comme wp_crop_rce.`,
+        code:`import requests
+
+# Session persistante (garde les cookies)
+sess = requests.Session()
+
+# Login
+r = sess.post("http://target/login", data={
+    "username": "admin",
+    "password": "password123"
+})
+print(r.status_code)  # 200
+
+# Requête authentifiée
+r2 = sess.get("http://target/admin")
+print(r2.text[:200])
+
+# Headers personnalisés
+headers = {"User-Agent":"Mozilla/5.0","X-Forwarded-For":"127.0.0.1"}
+r3 = sess.get("http://target", headers=headers, timeout=5)`,
+        exercises:[
+          {
+            id:'e15',title:'Checker HTTP',xp:60,
+            desc:`Écris une fonction check_url(url) qui envoie un GET, retourne le status code et la longueur du contenu. Teste sur : http://httpbin.org/status/200 et http://httpbin.org/status/404`,
+            expected:`200 → 0 bytes\n404 → 0 bytes`,
+            hint:`requests.get(url, timeout=5). r.status_code et len(r.content).`,
+            starter:`import requests\n\ndef check_url(url):\n    try:\n        r = requests.get(url, timeout=5)\n        # Retourne status et taille\n        return \n    except Exception as e:\n        return None, str(e)\n\nfor url in ["http://httpbin.org/status/200","http://httpbin.org/status/404"]:\n    code, size = check_url(url)\n    print(f"{code} → {size} bytes")\n`,
+            solution:`import requests\n\ndef check_url(url):\n    try:\n        r = requests.get(url, timeout=5)\n        return r.status_code, len(r.content)\n    except Exception as e:\n        return None, str(e)\n\nfor url in ["http://httpbin.org/status/200","http://httpbin.org/status/404"]:\n    code, size = check_url(url)\n    print(f"{code} → {size} bytes")`,
+            check: code => code.includes('requests.get') && code.includes('status_code') && code.includes('timeout')
+          },
+          {
+            id:'e16',title:'Fuzzer de répertoires',xp:80,
+            desc:`Écris un mini fuzzer qui teste une liste de chemins sur http://httpbin.org. Affiche [+] si status 200, [-] si 404, [?] sinon. Wordlist : ["get","post","anything","nonexistent","ip"]`,
+            expected:`[+] /get → 200\n[+] /post → 200\n[+] /anything → 200\n[-] /nonexistent → 404\n[+] /ip → 200`,
+            hint:`for path in wordlist: r = requests.get(base+"/"+path) puis vérifie r.status_code`,
+            starter:`import requests\n\nbase = "http://httpbin.org"\nwordlist = ["get","post","anything","nonexistent","ip"]\n\nfor path in wordlist:\n    try:\n        r = \n        if r.status_code == 200:\n            print()\n        elif r.status_code == 404:\n            print()\n        else:\n            print()\n    except: pass\n`,
+            solution:`import requests\nbase = "http://httpbin.org"\nwordlist = ["get","post","anything","nonexistent","ip"]\nfor path in wordlist:\n    try:\n        r = requests.get(f"{base}/{path}", timeout=5)\n        if r.status_code==200: print(f"[+] /{path} → {r.status_code}")\n        elif r.status_code==404: print(f"[-] /{path} → {r.status_code}")\n        else: print(f"[?] /{path} → {r.status_code}")\n    except: pass`,
+            check: code => code.includes('requests.get') && code.includes('status_code') && code.includes('for ')
+          }
+        ]
+      }
+    ],
+    project:{
+      title:'Exploit WordPress custom',
+      desc:'Ré-implémentation manuelle de wp_crop_rce en Python pur — sans Metasploit. Login, upload, path traversal, crop, RCE. Exactement ce qu\'on a analysé ensemble.',
+      tags:['requests','sessions','exploitation','CVE-2019-8942'],
+      solution:`# Voir l'explication détaillée dans la conversation précédente.\n# Structure :\nimport requests, re, sys\n\nurl, user, pwd, theme = sys.argv[1:5]\nlhost, lport = sys.argv[5], sys.argv[6]\n\nsess = requests.Session()\n# 1. Login\nsess.post(url+"wp-login.php", data={"log":user,"pwd":pwd,"wp-submit":"Log In","testcookie":1})\n# 2. Nonce upload\nres  = sess.get(url+"wp-admin/media-new.php")\nnonce = re.findall(r'_wpnonce" value="(\\w+)"', res.text)[0]\n# 3. Upload gd.jpg (avec payload EXIF)\n# 4. Path traversal sur _wp_attached_file\n# 5. Crop → écriture dans le thème\n# 6. Template → RCE\nprint("[+] Voir le code complet dans la conversation")`
+    }
+  }
+];
+
+let state = {
+  currentLesson: null,
+  currentExercise: 0,
+  completed: new Set(JSON.parse(localStorage.getItem('pyc_done')||'[]')),
+  xp: parseInt(localStorage.getItem('pyc_xp')||'0'),
+  showSolutions: new Set()
+};
+
+function save(){
+  localStorage.setItem('pyc_done', JSON.stringify([...state.completed]));
+  localStorage.setItem('pyc_xp', state.xp);
+}
+
+function updateXP(n){
+  state.xp += n;
+  document.getElementById('xpCount').textContent = state.xp;
+  save();
+}
+
+function updateProgress(){
+  const total = CURRICULUM.reduce((a,m)=>a+m.lessons.reduce((b,l)=>b+l.exercises.length,0),0);
+  const done  = state.completed.size;
+  document.getElementById('progressLabel').textContent = `${done} / ${total} exercices`;
+  document.getElementById('progressFill').style.width = (done/total*100)+'%';
+}
+
+function buildSidebar(){
+  const sb = document.getElementById('sidebar');
+  sb.innerHTML = '';
+  let html = '';
+  CURRICULUM.forEach((mod,mi)=>{
+    html += `<div class="sidebar-section">
+      <div class="sidebar-label">Module ${mi+1}</div>
+      <button class="module-btn" onclick="openModule('${mod.id}')">
+        <span class="dot"></span>${mod.title}
+      </button>`;
+    mod.lessons.forEach(l=>{
+      const done = l.exercises.every(e=>state.completed.has(e.id));
+      html += `<button class="lesson-btn ${done?'done':''}" id="btn_${l.id}" onclick="openLesson('${mod.id}','${l.id}')">
+        ${done?'<span class="tick">✓</span>':'○'} ${l.title}
+      </button>`;
+    });
+    html += `<button class="lesson-btn" onclick="openProject('${mod.id}')">
+      ◈ Projet final
+    </button></div>`;
+  });
+  sb.innerHTML = html;
+}
+
+function openModule(modId){
+  const mod = CURRICULUM.find(m=>m.id===modId);
+  if(mod && mod.lessons.length) openLesson(modId, mod.lessons[0].id);
+}
+
+function openLesson(modId, lessonId){
+  const mod = CURRICULUM.find(m=>m.id===modId);
+  const lesson = mod.lessons.find(l=>l.id===lessonId);
+  state.currentLesson = lesson;
+  state.currentExercise = 0;
+
+  document.querySelectorAll('.lesson-btn').forEach(b=>b.classList.remove('active'));
+  const btn = document.getElementById('btn_'+lessonId);
+  if(btn) btn.classList.add('active');
+
+  renderLesson(mod, lesson);
+}
+
+function renderLesson(mod, lesson){
+  const ca = document.getElementById('contentArea');
+  let html = `<div class="fade-in">
+    <div class="lesson-header">
+      <span class="lesson-tag ${mod.tagClass}">${mod.level}</span>
+      <div class="lesson-title">${lesson.title}</div>
+      <div class="lesson-desc">${mod.title} · Module ${CURRICULUM.indexOf(mod)+1}</div>
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('theory','${lesson.id}')">Théorie</button>
+      <button class="tab" onclick="switchTab('exercises','${lesson.id}')">Exercices (${lesson.exercises.length})</button>
+    </div>
+    <div class="tab-content active" id="tab_theory_${lesson.id}">
+      <div class="theory-block">
+        <h3>Concept</h3>
+        <p>${lesson.theory}</p>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">copier</button>
+        </div>
+        <div class="code-body">${syntaxHL(lesson.code)}</div>
+      </div>
+    </div>
+    <div class="tab-content" id="tab_exercises_${lesson.id}">
+      ${lesson.exercises.map((ex,i)=>renderExercise(ex,i)).join('')}
+    </div>
+  </div>`;
+  ca.innerHTML = html;
+  ca.scrollTop = 0;
+}
+
+function renderExercise(ex, idx){
+  const done = state.completed.has(ex.id);
+  return `<div class="exercise-card" id="excard_${ex.id}">
+    <div class="ex-header">
+      <div class="ex-title">
+        ${done?'<span style="color:var(--green)">✓</span>':''}
+        Exercice ${idx+1} — ${ex.title}
+      </div>
+      <span class="ex-badge">+${ex.xp} XP</span>
+    </div>
+    <div class="ex-body">
+      <p>${ex.desc.replace(/\n/g,'<br>')}</p>
+      <div class="expected">
+        <div class="expected-label">Résultat attendu</div>
+        <pre>${ex.expected}</pre>
+      </div>
+      <div class="editor-wrapper">
+        <div class="editor-toolbar">
+          <div class="editor-dot d-red"></div>
+          <div class="editor-dot d-amber"></div>
+          <div class="editor-dot d-green"></div>
+          <span class="editor-filename">exercice_${idx+1}.py</span>
+        </div>
+        <textarea class="code-editor" id="ed_${ex.id}" spellcheck="false">${ex.starter}</textarea>
+      </div>
+      <div class="editor-actions">
+        <button class="btn btn-run" onclick="runCheck('${ex.id}')">▶ Vérifier</button>
+        <button class="btn btn-hint" onclick="toggleHint('${ex.id}')">Indice</button>
+        <button class="btn btn-solution" onclick="toggleSolution('${ex.id}')">Corrigé</button>
+      </div>
+      <div class="hint-panel" id="hint_${ex.id}">${ex.hint}</div>
+      <div class="output-panel" id="out_${ex.id}">
+        <div class="output-header">output</div>
+        <div class="output-body" id="outbody_${ex.id}"></div>
+      </div>
+      <div class="solution-panel" id="sol_${ex.id}">
+        <div class="solution-label">Corrigé</div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">python</span></div>
+          <div class="code-body">${syntaxHL(ex.solution)}</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function switchTab(tab, lessonId){
+  document.querySelectorAll(`[id^="tab_"]`).forEach(el=>{
+    if(el.id.includes(lessonId)) el.classList.remove('active');
+  });
+  document.querySelectorAll('.tab').forEach((t,i)=>{
+    t.classList.toggle('active', (tab==='theory'&&i===0)||(tab==='exercises'&&i===1));
+  });
+  document.getElementById(`tab_${tab}_${lessonId}`).classList.add('active');
+}
+
+function runCheck(exId){
+  const lesson = state.currentLesson;
+  const ex = lesson.exercises.find(e=>e.id===exId);
+  const code = document.getElementById('ed_'+exId).value;
+  const out = document.getElementById('out_'+exId);
+  const outbody = document.getElementById('outbody_'+exId);
+  out.classList.add('visible');
+
+  const passed = ex.check(code);
+  if(passed){
+    outbody.className = 'output-body success';
+    outbody.textContent = '✓ Code valide ! La structure correspond à l\'exercice.';
+    if(!state.completed.has(exId)){
+      state.completed.add(exId);
+      updateXP(ex.xp);
+      save();
+      updateProgress();
+      showModal('Exercice réussi !', `+${ex.xp} XP`, `Bien joué ! La logique de ton code est correcte.`);
+      document.getElementById('excard_'+exId).querySelector('.ex-title').innerHTML =
+        `<span style="color:var(--green)">✓</span> ${ex.title}`;
+      const btn = document.getElementById('btn_'+lesson.id);
+      if(btn && lesson.exercises.every(e=>state.completed.has(e.id))){
+        btn.classList.add('done');
+        btn.querySelector('.tick') || (btn.innerHTML = btn.innerHTML.replace('○','<span class="tick">✓</span>'));
+      }
+    }
+  } else {
+    outbody.className = 'output-body error';
+    outbody.textContent = '✗ Pas encore. Vérifie la logique ou utilise l\'indice.';
+  }
+}
+
+function toggleHint(exId){
+  const h = document.getElementById('hint_'+exId);
+  h.classList.toggle('visible');
+}
+
+function toggleSolution(exId){
+  const s = document.getElementById('sol_'+exId);
+  s.classList.toggle('visible');
+}
+
+function copyCode(btn){
+  const code = btn.closest('.code-block').querySelector('.code-body').textContent;
+  navigator.clipboard.writeText(code).then(()=>{
+    btn.textContent='copié !';
+    setTimeout(()=>btn.textContent='copier',1500);
+  });
+}
+
+function openProject(modId){
+  const mod = CURRICULUM.find(m=>m.id===modId);
+  const proj = mod.project;
+  const ca = document.getElementById('contentArea');
+  ca.innerHTML = `<div class="fade-in">
+    <div class="lesson-header">
+      <span class="lesson-tag ${mod.tagClass}">Projet</span>
+      <div class="lesson-title">${proj.title}</div>
+      <div class="lesson-desc">${mod.title} · Projet final</div>
+    </div>
+    <div class="project-card">
+      <div class="project-desc">${proj.desc}</div>
+      <div class="project-tags">${proj.tags.map(t=>`<span class="ptag">${t}</span>`).join('')}</div>
+      <p style="font-family:var(--mono);font-size:12px;color:var(--text2);margin-bottom:16px">
+        Essaie de le coder toi-même en utilisant tout ce que tu as appris dans le module. Quand tu es prêt, compare avec le corrigé.
+      </p>
+      <div class="project-actions">
+        <button class="btn btn-solution" onclick="document.getElementById('proj_sol_${mod.id}').classList.toggle('visible')">Voir le corrigé</button>
+      </div>
+    </div>
+    <div class="solution-panel" id="proj_sol_${mod.id}">
+      <div class="solution-label">Corrigé complet</div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">copier</button></div>
+        <div class="code-body">${syntaxHL(proj.solution)}</div>
+      </div>
+    </div>
+  </div>`;
+  ca.scrollTop = 0;
+}
+
+function showModal(title, xp, text){
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalXp').textContent = xp;
+  document.getElementById('modalText').textContent = text;
+  document.getElementById('modal').classList.add('visible');
+}
+function closeModal(){ document.getElementById('modal').classList.remove('visible'); }
+
+function syntaxHL(code){
+  return code
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/#.*$/gm, m=>`<span class="cm">${m}</span>`)
+    .replace(/\b(def|return|import|from|if|elif|else|for|while|in|not|and|or|try|except|finally|with|as|break|continue|class|True|False|None|pass|raise|lambda)\b/g, m=>`<span class="kw">${m}</span>`)
+    .replace(/("""[\s\S]*?"""|'''[\s\S]*?'''|"[^"]*"|'[^']*')/g, m=>`<span class="str">${m}</span>`)
+    .replace(/\b(\d+)\b/g, m=>`<span class="num">${m}</span>`);
+}
+
+function showWelcome(){
+  const total = CURRICULUM.reduce((a,m)=>a+m.lessons.reduce((b,l)=>b+l.exercises.length,0),0);
+  document.getElementById('contentArea').innerHTML = `<div class="welcome fade-in">
+    <div class="welcome-ascii">____          ____                  _
+|  _ \\  _   _/ ___|  ___  ___     / \\  ___ __ _
+| |_) || | | \\___ \\ / _ \\/ __|   / _ \\/ __/ _\` |
+|  __/ | |_| |___) |  __/ (__   / ___ \\ (_| (_| |
+|_|     \\__, |____/ \\___|\\___|  /_/   \\_\\___\\__,_|
+         |___/</div>
+    <h1>Python × Cybersecurity</h1>
+    <p>Formation complète orientée outils offensifs — des bases jusqu'aux exploits. Code des vrais outils, pas juste des exercices académiques.</p>
+    <div class="welcome-grid">
+      <div class="welcome-stat"><div class="num">${CURRICULUM.length}</div><div class="lbl">Modules</div></div>
+      <div class="welcome-stat"><div class="num">${total}</div><div class="lbl">Exercices</div></div>
+      <div class="welcome-stat"><div class="num">${CURRICULUM.reduce((a,m)=>a+1,0)}</div><div class="lbl">Projets</div></div>
+    </div>
+    <button class="btn-start" onclick="openLesson('m1','m1l1')">Commencer le Module 1 →</button>
+  </div>`;
+}
+
+buildSidebar();
+updateProgress();
+document.getElementById('xpCount').textContent = state.xp;
+showWelcome();
+</script>
+</body>
+</html>
