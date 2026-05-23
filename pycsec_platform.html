@@ -4,237 +4,804 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PySec Academy</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Barlow:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+/* ─── TOKENS ─────────────────────────────────────────────── */
 :root {
-  --bg: #0a0c10;
-  --bg2: #0f1218;
-  --bg3: #151920;
-  --bg4: #1c2230;
-  --border: #1e2533;
-  --border2: #2a3348;
-  --green: #00ff88;
-  --green2: #00cc6a;
-  --green-dim: rgba(0,255,136,0.08);
-  --green-dim2: rgba(0,255,136,0.15);
-  --blue: #4d9eff;
-  --blue-dim: rgba(77,158,255,0.1);
-  --amber: #ffb347;
-  --amber-dim: rgba(255,179,71,0.1);
-  --red: #ff5555;
-  --red-dim: rgba(255,85,85,0.1);
-  --purple: #b07fff;
-  --text: #e8edf5;
-  --text2: #8892a4;
-  --text3: #4a5568;
-  --mono: 'JetBrains Mono', monospace;
-  --sans: 'Syne', sans-serif;
-  --radius: 8px;
-  --radius2: 12px;
+  --ink:     #0b0c11;
+  --ink2:    #10121a;
+  --ink3:    #161924;
+  --ink4:    #1e2130;
+  --ink5:    #252a3c;
+  --line:    #222639;
+  --line2:   #2f3550;
+  --lime:    #c8ff57;
+  --lime2:   #aee040;
+  --limdim:  rgba(200,255,87,.07);
+  --limdim2: rgba(200,255,87,.13);
+  --sky:     #5db8ff;
+  --skydim:  rgba(93,184,255,.09);
+  --fire:    #ff8c42;
+  --firedim: rgba(255,140,66,.09);
+  --rose:    #ff5e7a;
+  --rosedim: rgba(255,94,122,.09);
+  --violet:  #c084fc;
+  --vdim:    rgba(192,132,252,.09);
+  --fg:      #d8deee;
+  --fg2:     #6b7492;
+  --fg3:     #353d5c;
+  --mono:    'IBM Plex Mono', monospace;
+  --sans:    'Barlow', sans-serif;
+  --rr:      4px;
+  --rr2:     8px;
+  --sb-w:    248px;
+  --tb-h:    50px;
 }
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden}
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 
-/* LAYOUT */
-.app{display:grid;grid-template-columns:260px 1fr;grid-template-rows:56px 1fr;height:100vh}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{font-size:15px}
+body{
+  background:var(--ink);
+  color:var(--fg);
+  font-family:var(--sans);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+::selection{background:var(--limdim2);color:var(--lime)}
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-thumb{background:var(--line2)}
+::-webkit-scrollbar-track{background:transparent}
 
-/* TOPBAR */
-.topbar{grid-column:1/-1;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:16px;position:relative;z-index:10}
-.logo{font-family:var(--mono);font-weight:700;font-size:16px;color:var(--green);letter-spacing:-0.5px;display:flex;align-items:center;gap:8px}
-.logo-bracket{color:var(--text3)}
-.topbar-center{flex:1;display:flex;align-items:center;justify-content:center;gap:6px}
-.progress-track{width:200px;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden}
-.progress-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--blue));border-radius:2px;transition:width .5s ease}
-.progress-label{font-family:var(--mono);font-size:11px;color:var(--text2)}
-.xp-badge{font-family:var(--mono);font-size:12px;color:var(--amber);background:var(--amber-dim);border:1px solid rgba(255,179,71,0.2);padding:4px 10px;border-radius:20px;margin-left:auto}
+/* ─── LAYOUT ─────────────────────────────────────────────── */
+.shell{
+  display:grid;
+  grid-template-columns:var(--sb-w) 1fr;
+  grid-template-rows:var(--tb-h) 1fr;
+  height:100vh;
+}
 
-/* SIDEBAR */
-.sidebar{background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;padding:16px 0}
-.sidebar-section{padding:0 12px;margin-bottom:4px}
-.sidebar-label{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:1px;padding:8px 8px 4px;text-transform:uppercase}
-.module-btn{width:100%;background:none;border:none;text-align:left;padding:8px 10px;border-radius:var(--radius);cursor:pointer;color:var(--text2);font-family:var(--sans);font-size:13px;display:flex;align-items:center;gap:10px;transition:all .15s;position:relative}
-.module-btn:hover{background:var(--bg4);color:var(--text)}
-.module-btn.active{background:var(--green-dim2);color:var(--green);border-left:2px solid var(--green)}
-.module-btn.completed{color:var(--text2)}
-.module-btn .dot{width:8px;height:8px;border-radius:50%;background:var(--border2);flex-shrink:0}
-.module-btn.active .dot{background:var(--green)}
-.module-btn.completed .dot{background:var(--text3)}
-.lesson-btn{width:100%;background:none;border:none;text-align:left;padding:6px 10px 6px 28px;border-radius:var(--radius);cursor:pointer;color:var(--text3);font-family:var(--mono);font-size:11px;display:flex;align-items:center;gap:8px;transition:all .15s}
-.lesson-btn:hover{color:var(--text2);background:var(--bg3)}
-.lesson-btn.active{color:var(--green)}
-.lesson-btn.done{color:var(--text3)}
-.lesson-btn .tick{color:var(--green);font-size:10px}
-.mod-num{font-family:var(--mono);font-size:10px;color:var(--text3);min-width:20px}
+/* ─── TOPBAR ─────────────────────────────────────────────── */
+.topbar{
+  grid-column:1/-1;
+  background:var(--ink2);
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  padding:0 14px;
+  gap:12px;
+  position:sticky;
+  top:0;
+  z-index:200;
+}
 
-/* MAIN */
-.main{display:grid;grid-template-rows:1fr auto;overflow:hidden;background:var(--bg)}
+.logo{
+  font-family:var(--mono);
+  font-weight:600;
+  font-size:13px;
+  color:var(--lime);
+  display:flex;
+  align-items:center;
+  gap:0;
+  flex-shrink:0;
+  letter-spacing:-.2px;
+}
+.logo-mute{color:var(--fg3)}
 
-/* CONTENT AREA */
-.content-area{overflow-y:auto;padding:32px 40px;max-width:900px;width:100%}
+.hamburger{
+  display:none;
+  background:none;
+  border:1px solid var(--line2);
+  border-radius:var(--rr);
+  cursor:pointer;
+  padding:5px 7px;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  flex-direction:column;
+  flex-shrink:0;
+  transition:border-color .15s;
+}
+.hamburger:hover{border-color:var(--fg2)}
+.hamburger span{
+  display:block;
+  width:14px;
+  height:1.5px;
+  background:var(--fg2);
+  border-radius:1px;
+  transition:transform .2s, opacity .2s;
+}
+.hamburger.open span:nth-child(1){transform:translateY(5px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-5px) rotate(-45deg)}
 
-/* LESSON HEADER */
-.lesson-header{margin-bottom:28px}
-.lesson-tag{font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:10px}
-.tag-beginner{background:rgba(0,255,136,0.1);color:var(--green);border:1px solid rgba(0,255,136,0.2)}
-.tag-intermediate{background:rgba(77,158,255,0.1);color:var(--blue);border:1px solid rgba(77,158,255,0.2)}
-.tag-advanced{background:rgba(255,179,71,0.1);color:var(--amber);border:1px solid rgba(255,179,71,0.2)}
-.tag-expert{background:rgba(176,127,255,0.1);color:var(--purple);border:1px solid rgba(176,127,255,0.2)}
-.lesson-title{font-size:26px;font-weight:800;color:var(--text);line-height:1.2;margin-bottom:8px}
-.lesson-desc{font-family:var(--mono);font-size:13px;color:var(--text2);line-height:1.6}
+.tb-mid{
+  flex:1;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  overflow:hidden;
+}
+.prog-lbl{
+  font-family:var(--mono);
+  font-size:10px;
+  color:var(--fg3);
+  white-space:nowrap;
+  flex-shrink:0;
+}
+.prog-rail{
+  flex:1;
+  max-width:180px;
+  height:2px;
+  background:var(--ink5);
+  border-radius:1px;
+  overflow:hidden;
+  flex-shrink:0;
+}
+.prog-bar{
+  height:100%;
+  background:var(--lime);
+  border-radius:1px;
+  transition:width .4s ease;
+}
 
-/* THEORY */
-.theory-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:20px 24px;margin-bottom:20px}
-.theory-block h3{font-size:14px;font-weight:600;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px}
-.theory-block h3::before{content:'';display:block;width:3px;height:16px;background:var(--blue);border-radius:2px}
-.theory-block p{font-family:var(--mono);font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:10px}
+.xp-tag{
+  margin-left:auto;
+  font-family:var(--mono);
+  font-size:10px;
+  color:var(--fire);
+  background:var(--firedim);
+  border:1px solid rgba(255,140,66,.18);
+  padding:3px 9px;
+  border-radius:20px;
+  flex-shrink:0;
+}
 
-/* CODE BLOCK */
-.code-block{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:12px 0}
-.code-header{background:var(--bg3);padding:8px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
-.code-lang{font-family:var(--mono);font-size:10px;color:var(--text3)}
-.copy-btn{background:none;border:none;color:var(--text3);font-family:var(--mono);font-size:10px;cursor:pointer;padding:2px 8px;border-radius:4px;transition:all .15s}
-.copy-btn:hover{color:var(--green);background:var(--green-dim)}
-.code-body{padding:16px;font-family:var(--mono);font-size:12.5px;line-height:1.7;overflow-x:auto;white-space:pre}
-.kw{color:#ff79c6}
-.fn{color:#50fa7b}
-.str{color:#f1fa8c}
-.cm{color:#6272a4;font-style:italic}
-.num{color:#bd93f9}
-.var{color:#8be9fd}
+/* ─── SIDEBAR ────────────────────────────────────────────── */
+.sidebar-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.65);
+  z-index:148;
+  backdrop-filter:blur(2px);
+}
+.sidebar-overlay.on{display:block}
 
-/* EXERCISE */
-.exercise-card{border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;margin-bottom:20px}
-.ex-header{background:var(--bg3);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
-.ex-title{font-size:14px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:10px}
-.ex-badge{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px;background:var(--amber-dim);color:var(--amber)}
-.ex-body{padding:20px}
-.ex-body p{font-family:var(--mono);font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:14px}
-.expected{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px}
-.expected-label{font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
-.expected pre{font-family:var(--mono);font-size:12px;color:var(--green);line-height:1.6}
+.sidebar{
+  background:var(--ink2);
+  border-right:1px solid var(--line);
+  overflow-y:auto;
+  padding:8px 0 32px;
+  transition:transform .22s cubic-bezier(.4,0,.2,1);
+}
 
-/* EDITOR */
-.editor-wrapper{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px}
-.editor-toolbar{background:var(--bg3);padding:8px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
-.editor-dot{width:10px;height:10px;border-radius:50%}
-.d-red{background:#ff5f56}
-.d-amber{background:#ffbd2e}
-.d-green{background:#27c93f}
-.editor-filename{font-family:var(--mono);font-size:11px;color:var(--text3);margin-left:4px}
-.code-editor{width:100%;background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;line-height:1.7;padding:16px;border:none;outline:none;resize:vertical;min-height:140px;tab-size:4}
-.editor-actions{display:flex;gap:8px;align-items:center}
-.btn{font-family:var(--mono);font-size:12px;padding:7px 16px;border-radius:var(--radius);border:none;cursor:pointer;transition:all .15s;font-weight:500}
-.btn-run{background:var(--green);color:#000}
-.btn-run:hover{background:var(--green2)}
-.btn-hint{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(255,179,71,0.2)}
-.btn-hint:hover{background:rgba(255,179,71,0.2)}
-.btn-solution{background:var(--bg4);color:var(--text2);border:1px solid var(--border2)}
-.btn-solution:hover{color:var(--text);background:var(--bg3)}
-.btn-next{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(77,158,255,0.2);padding:7px 20px}
-.btn-next:hover{background:rgba(77,158,255,0.2)}
+.sb-mod{
+  padding:0 8px;
+  margin-bottom:2px;
+}
+.sb-lbl{
+  font-family:var(--mono);
+  font-size:9px;
+  color:var(--fg3);
+  letter-spacing:1.4px;
+  text-transform:uppercase;
+  padding:12px 8px 3px;
+  display:block;
+}
+.mod-btn{
+  width:100%;
+  background:none;
+  border:none;
+  text-align:left;
+  padding:7px 9px;
+  border-radius:var(--rr);
+  cursor:pointer;
+  color:var(--fg2);
+  font-family:var(--sans);
+  font-size:12.5px;
+  font-weight:600;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  transition:background .12s,color .12s;
+}
+.mod-btn:hover{background:var(--ink4);color:var(--fg)}
+.mod-btn.on{background:var(--limdim2);color:var(--lime)}
+.mod-pip{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--line2);
+  flex-shrink:0;
+  transition:background .12s;
+}
+.mod-btn.on .mod-pip{background:var(--lime)}
 
-/* OUTPUT */
-.output-panel{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;display:none}
-.output-panel.visible{display:block}
-.output-header{background:var(--bg3);padding:6px 14px;font-family:var(--mono);font-size:10px;color:var(--text3);border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:0.5px}
-.output-body{padding:14px;font-family:var(--mono);font-size:12.5px;line-height:1.7;white-space:pre-wrap}
-.output-body.success{color:var(--green)}
-.output-body.error{color:var(--red)}
-.output-body.info{color:var(--text2)}
+.les-btn{
+  width:100%;
+  background:none;
+  border:none;
+  text-align:left;
+  padding:5px 9px 5px 25px;
+  border-radius:var(--rr);
+  cursor:pointer;
+  color:var(--fg3);
+  font-family:var(--mono);
+  font-size:10px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  transition:background .12s,color .12s;
+}
+.les-btn:hover{color:var(--fg2);background:var(--ink3)}
+.les-btn.on{color:var(--lime)}
+.les-btn.ok{color:var(--fg3)}
+.chk{color:var(--lime);font-size:9px}
 
-/* HINT */
-.hint-panel{background:var(--amber-dim);border:1px solid rgba(255,179,71,0.2);border-radius:var(--radius);padding:12px 16px;margin-bottom:12px;font-family:var(--mono);font-size:12.5px;color:var(--amber);line-height:1.6;display:none}
-.hint-panel.visible{display:block}
+/* ─── MAIN ───────────────────────────────────────────────── */
+.main{
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+.content{
+  flex:1;
+  overflow-y:auto;
+  padding:26px 34px;
+  max-width:840px;
+  width:100%;
+}
 
-/* SOLUTION */
-.solution-panel{display:none;margin-bottom:12px}
-.solution-panel.visible{display:block}
-.solution-label{font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+/* ─── LESSON HEADER ──────────────────────────────────────── */
+.lh{margin-bottom:22px}
+.l-tag{
+  font-family:var(--mono);
+  font-size:9.5px;
+  padding:2px 9px;
+  border-radius:20px;
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  margin-bottom:9px;
+  letter-spacing:.3px;
+}
+.t-beg{background:var(--limdim);color:var(--lime);border:1px solid rgba(200,255,87,.18)}
+.t-int{background:var(--skydim);color:var(--sky);border:1px solid rgba(93,184,255,.18)}
+.t-adv{background:var(--firedim);color:var(--fire);border:1px solid rgba(255,140,66,.18)}
+.t-exp{background:var(--vdim);color:var(--violet);border:1px solid rgba(192,132,252,.18)}
+.l-title{
+  font-size:21px;
+  font-weight:800;
+  color:var(--fg);
+  line-height:1.2;
+  margin-bottom:5px;
+  letter-spacing:-.3px;
+}
+.l-meta{
+  font-family:var(--mono);
+  font-size:10.5px;
+  color:var(--fg3);
+}
 
-/* PROJECT CARD */
-.project-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:24px;margin-bottom:20px;position:relative;overflow:hidden}
-.project-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),var(--blue))}
-.project-title{font-size:18px;font-weight:700;color:var(--text);margin-bottom:6px}
-.project-desc{font-family:var(--mono);font-size:12.5px;color:var(--text2);line-height:1.6;margin-bottom:16px}
-.project-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
-.ptag{font-family:var(--mono);font-size:11px;padding:3px 8px;border-radius:4px;background:var(--bg4);color:var(--text3);border:1px solid var(--border)}
-.project-actions{display:flex;gap:8px}
+/* ─── THEORY ─────────────────────────────────────────────── */
+.theory{
+  background:var(--ink2);
+  border:1px solid var(--line);
+  border-radius:var(--rr2);
+  padding:16px 20px;
+  margin-bottom:14px;
+}
+.theory h3{
+  font-size:12px;
+  font-weight:700;
+  color:var(--fg);
+  margin-bottom:9px;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+}
+.theory h3::before{
+  content:'';
+  display:block;
+  width:2px;
+  height:13px;
+  background:var(--sky);
+  border-radius:1px;
+}
+.theory p{
+  font-family:var(--mono);
+  font-size:11.5px;
+  color:var(--fg2);
+  line-height:1.8;
+}
 
-/* TABS */
-.tabs{display:flex;gap:2px;margin-bottom:24px;background:var(--bg2);border-radius:var(--radius);padding:4px;border:1px solid var(--border)}
-.tab{flex:1;padding:8px 12px;border:none;background:none;color:var(--text2);font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;border-radius:6px;transition:all .15s}
-.tab.active{background:var(--bg4);color:var(--text)}
-.tab:hover:not(.active){color:var(--text)}
-.tab-content{display:none}
-.tab-content.active{display:block}
+/* ─── CODE BLOCK ─────────────────────────────────────────── */
+.cblock{
+  background:var(--ink);
+  border:1px solid var(--line);
+  border-radius:var(--rr);
+  overflow:hidden;
+  margin:10px 0;
+}
+.cblock-top{
+  background:var(--ink3);
+  padding:6px 12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-bottom:1px solid var(--line);
+}
+.c-lang{font-family:var(--mono);font-size:9px;color:var(--fg3)}
+.c-copy{
+  background:none;
+  border:none;
+  color:var(--fg3);
+  font-family:var(--mono);
+  font-size:9px;
+  cursor:pointer;
+  padding:2px 6px;
+  border-radius:3px;
+  transition:color .12s,background .12s;
+}
+.c-copy:hover{color:var(--lime);background:var(--limdim)}
+.c-body{
+  padding:13px 15px;
+  font-family:var(--mono);
+  font-size:11.5px;
+  line-height:1.75;
+  overflow-x:auto;
+  white-space:pre;
+}
+/* syntax colors */
+.kw {color:#f472b6}
+.fn {color:#86efac}
+.str{color:#fde68a}
+.cm {color:#4b5380;font-style:italic}
+.num{color:#c4b5fd}
+.op {color:#94a3b8}
 
-/* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:100;display:none}
-.modal-overlay.visible{display:flex}
-.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius2);padding:28px;max-width:480px;width:90%;text-align:center}
-.modal h3{font-size:20px;font-weight:700;color:var(--green);margin-bottom:8px}
-.modal p{font-family:var(--mono);font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px}
-.modal-xp{font-size:32px;font-weight:800;color:var(--amber);margin:12px 0}
+/* ─── TABS ───────────────────────────────────────────────── */
+.tabs{
+  display:flex;
+  gap:2px;
+  margin-bottom:18px;
+  background:var(--ink2);
+  border:1px solid var(--line);
+  border-radius:var(--rr);
+  padding:3px;
+}
+.tab-btn{
+  flex:1;
+  padding:6px 10px;
+  border:none;
+  background:none;
+  color:var(--fg2);
+  font-family:var(--sans);
+  font-size:12px;
+  font-weight:600;
+  cursor:pointer;
+  border-radius:3px;
+  transition:all .12s;
+}
+.tab-btn.on{background:var(--ink5);color:var(--fg)}
+.tab-btn:hover:not(.on){color:var(--fg)}
+.tc{display:none}
+.tc.on{display:block}
 
-/* WELCOME */
-.welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center;padding:40px}
-.welcome-ascii{font-family:var(--mono);font-size:11px;color:var(--green);line-height:1.3;margin-bottom:24px;opacity:0.6}
-.welcome h1{font-size:36px;font-weight:800;margin-bottom:12px;background:linear-gradient(135deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.welcome p{font-family:var(--mono);font-size:14px;color:var(--text2);max-width:500px;line-height:1.7;margin-bottom:28px}
-.welcome-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:480px;width:100%;margin-bottom:28px}
-.welcome-stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center}
-.welcome-stat .num{font-size:22px;font-weight:800;color:var(--green);font-family:var(--mono)}
-.welcome-stat .lbl{font-family:var(--mono);font-size:11px;color:var(--text3);margin-top:4px}
-.btn-start{background:var(--green);color:#000;font-family:var(--sans);font-weight:700;font-size:14px;padding:12px 32px;border-radius:var(--radius);border:none;cursor:pointer;transition:all .2s}
-.btn-start:hover{background:var(--green2);transform:translateY(-1px)}
+/* ─── EXERCISE ───────────────────────────────────────────── */
+.excard{
+  border:1px solid var(--line);
+  border-radius:var(--rr2);
+  overflow:hidden;
+  margin-bottom:16px;
+}
+.exhead{
+  background:var(--ink3);
+  padding:11px 16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  flex-wrap:wrap;
+  border-bottom:1px solid var(--line);
+}
+.extitle{
+  font-size:13px;
+  font-weight:700;
+  color:var(--fg);
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+.xp-pill{
+  font-family:var(--mono);
+  font-size:9px;
+  padding:2px 7px;
+  border-radius:3px;
+  background:var(--firedim);
+  color:var(--fire);
+  flex-shrink:0;
+}
+.exbody{padding:16px}
+.exbody p{
+  font-family:var(--mono);
+  font-size:11.5px;
+  color:var(--fg2);
+  line-height:1.8;
+  margin-bottom:12px;
+}
+.expected-box{
+  background:var(--ink);
+  border:1px solid var(--line);
+  border-radius:var(--rr);
+  padding:9px 13px;
+  margin-bottom:12px;
+}
+.exp-lbl{
+  font-family:var(--mono);
+  font-size:8.5px;
+  color:var(--fg3);
+  text-transform:uppercase;
+  letter-spacing:.8px;
+  margin-bottom:5px;
+}
+.expected-box pre{
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--lime);
+  line-height:1.65;
+}
 
-/* ANIMATIONS */
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.fade-in{animation:fadeIn .3s ease forwards}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
-.running{animation:pulse .8s infinite}
+/* ─── EDITOR ─────────────────────────────────────────────── */
+.edwrap{
+  background:var(--ink);
+  border:1px solid var(--line);
+  border-radius:var(--rr);
+  overflow:hidden;
+  margin-bottom:9px;
+}
+.edbar{
+  background:var(--ink3);
+  padding:6px 11px;
+  display:flex;
+  align-items:center;
+  gap:5px;
+  border-bottom:1px solid var(--line);
+}
+.dot-r{width:8px;height:8px;border-radius:50%;background:#ff5f56;flex-shrink:0}
+.dot-y{width:8px;height:8px;border-radius:50%;background:#ffbd2e;flex-shrink:0}
+.dot-g{width:8px;height:8px;border-radius:50%;background:#27c93f;flex-shrink:0}
+.ed-fname{
+  font-family:var(--mono);
+  font-size:9.5px;
+  color:var(--fg3);
+  margin-left:4px;
+}
+textarea.editor{
+  width:100%;
+  background:var(--ink);
+  color:var(--fg);
+  font-family:var(--mono);
+  font-size:12px;
+  line-height:1.7;
+  padding:13px;
+  border:none;
+  outline:none;
+  resize:vertical;
+  min-height:120px;
+  tab-size:4;
+}
 
-/* RESPONSIVE */
-@media(max-width:700px){
-  .app{grid-template-columns:1fr;grid-template-rows:56px auto 1fr}
-  .sidebar{display:none}
-  .content-area{padding:20px}
+.btns{
+  display:flex;
+  gap:7px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.btn{
+  font-family:var(--mono);
+  font-size:11px;
+  padding:6px 13px;
+  border-radius:var(--rr);
+  border:none;
+  cursor:pointer;
+  transition:all .12s;
+  font-weight:500;
+  white-space:nowrap;
+}
+.b-run {background:var(--lime);color:#070a03;font-weight:700}
+.b-run:hover{background:var(--lime2)}
+.b-hint{background:var(--firedim);color:var(--fire);border:1px solid rgba(255,140,66,.2)}
+.b-hint:hover{background:rgba(255,140,66,.16)}
+.b-sol {background:var(--ink4);color:var(--fg2);border:1px solid var(--line2)}
+.b-sol:hover{color:var(--fg);background:var(--ink5)}
+.b-next{background:var(--skydim);color:var(--sky);border:1px solid rgba(93,184,255,.2);padding:6px 16px}
+.b-next:hover{background:rgba(93,184,255,.15)}
+
+/* ─── OUTPUT ─────────────────────────────────────────────── */
+.outpanel{
+  background:var(--ink);
+  border:1px solid var(--line);
+  border-radius:var(--rr);
+  overflow:hidden;
+  margin-top:9px;
+  display:none;
+}
+.outpanel.on{display:block}
+.outhdr{
+  background:var(--ink3);
+  padding:4px 12px;
+  font-family:var(--mono);
+  font-size:8.5px;
+  color:var(--fg3);
+  border-bottom:1px solid var(--line);
+  text-transform:uppercase;
+  letter-spacing:.6px;
+}
+.outbody{
+  padding:11px 13px;
+  font-family:var(--mono);
+  font-size:11.5px;
+  line-height:1.7;
+  white-space:pre-wrap;
+}
+.outbody.ok {color:var(--lime)}
+.outbody.err{color:var(--rose)}
+.outbody.inf{color:var(--fg2)}
+
+/* ─── HINT / SOLUTION ────────────────────────────────────── */
+.hint{
+  background:var(--firedim);
+  border:1px solid rgba(255,140,66,.15);
+  border-radius:var(--rr);
+  padding:9px 13px;
+  margin-top:9px;
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--fire);
+  line-height:1.65;
+  display:none;
+}
+.hint.on{display:block}
+.solpanel{display:none;margin-top:9px}
+.solpanel.on{display:block}
+.sol-lbl{
+  font-family:var(--mono);
+  font-size:8.5px;
+  color:var(--fg3);
+  text-transform:uppercase;
+  letter-spacing:.7px;
+  margin-bottom:5px;
+}
+
+/* ─── PROJECT ────────────────────────────────────────────── */
+.projcard{
+  background:var(--ink2);
+  border:1px solid var(--line);
+  border-radius:var(--rr2);
+  padding:20px;
+  margin-bottom:16px;
+  position:relative;
+  overflow:hidden;
+}
+.projcard::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:1.5px;
+  background:linear-gradient(90deg,var(--lime),var(--sky));
+}
+.proj-desc{
+  font-family:var(--mono);
+  font-size:11.5px;
+  color:var(--fg2);
+  line-height:1.7;
+  margin-bottom:12px;
+}
+.proj-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
+.ptag{
+  font-family:var(--mono);
+  font-size:9.5px;
+  padding:2px 7px;
+  border-radius:3px;
+  background:var(--ink4);
+  color:var(--fg3);
+  border:1px solid var(--line);
+}
+
+/* ─── MODAL ──────────────────────────────────────────────── */
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(4,5,10,.82);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:300;
+  backdrop-filter:blur(4px);
+}
+.overlay.on{display:flex}
+.modal{
+  background:var(--ink2);
+  border:1px solid var(--line2);
+  border-radius:var(--rr2);
+  padding:26px 22px;
+  max-width:400px;
+  width:90%;
+  text-align:center;
+}
+.modal h3{font-size:17px;font-weight:800;color:var(--lime);margin-bottom:6px;letter-spacing:-.2px}
+.modal p{font-family:var(--mono);font-size:11.5px;color:var(--fg2);line-height:1.65;margin-bottom:16px}
+.modal-xp{font-size:28px;font-weight:800;color:var(--fire);margin:8px 0;font-family:var(--mono)}
+
+/* ─── WELCOME ────────────────────────────────────────────── */
+.welcome{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  min-height:58vh;
+  text-align:center;
+  padding:28px 16px;
+}
+.w-ascii{
+  font-family:var(--mono);
+  font-size:10px;
+  color:var(--lime);
+  line-height:1.3;
+  margin-bottom:18px;
+  opacity:.35;
+}
+.welcome h1{
+  font-size:clamp(20px,4.5vw,32px);
+  font-weight:800;
+  letter-spacing:-.5px;
+  margin-bottom:10px;
+  background:linear-gradient(120deg,var(--lime),var(--sky));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.welcome p{
+  font-family:var(--mono);
+  font-size:12px;
+  color:var(--fg2);
+  max-width:440px;
+  line-height:1.8;
+  margin-bottom:22px;
+}
+.w-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  max-width:380px;
+  width:100%;
+  margin-bottom:22px;
+}
+.w-stat{
+  background:var(--ink2);
+  border:1px solid var(--line);
+  border-radius:var(--rr);
+  padding:12px 8px;
+}
+.w-stat .n{font-size:18px;font-weight:800;color:var(--lime);font-family:var(--mono)}
+.w-stat .l{font-family:var(--mono);font-size:9.5px;color:var(--fg3);margin-top:2px}
+.w-start{
+  background:var(--lime);
+  color:#050a02;
+  font-family:var(--sans);
+  font-weight:800;
+  font-size:13px;
+  padding:10px 28px;
+  border-radius:var(--rr);
+  border:none;
+  cursor:pointer;
+  letter-spacing:-.1px;
+  transition:background .15s,transform .15s;
+}
+.w-start:hover{background:var(--lime2);transform:translateY(-2px)}
+
+/* ─── ANIMATIONS ─────────────────────────────────────────── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.fu{animation:fadeUp .22s ease forwards}
+
+/* ─── RESPONSIVE ─────────────────────────────────────────── */
+@media(max-width:860px){
+  :root{--sb-w:220px}
+  .content{padding:20px 22px}
+}
+
+@media(max-width:620px){
+  /* sidebar becomes a slide-in drawer */
+  .shell{
+    grid-template-columns:1fr;
+    grid-template-rows:var(--tb-h) 1fr;
+  }
+  .sidebar{
+    position:fixed;
+    top:var(--tb-h);
+    left:0;
+    bottom:0;
+    width:var(--sb-w);
+    z-index:150;
+    transform:translateX(-100%);
+    box-shadow:3px 0 20px rgba(0,0,0,.6);
+    border-right:1px solid var(--line2);
+  }
+  .sidebar.open{transform:translateX(0)}
+
+  .hamburger{display:flex}
+
+  /* hide progress bar in topbar on mobile */
+  .tb-mid{display:none}
+
+  .content{
+    padding:14px 12px;
+    max-width:100%;
+  }
+
+  .l-title{font-size:18px}
+  .editor{font-size:11px;min-height:100px}
+  .btns{gap:5px}
+  .btn{font-size:10px;padding:5px 9px}
+  .c-body{font-size:10.5px}
+
+  .w-ascii{display:none}
+  .welcome{min-height:45vh;padding:20px 10px}
+  .welcome p{font-size:11px}
+  .w-grid{max-width:100%}
+
+  .modal{padding:20px 16px}
+
+  .exhead{padding:10px 13px}
+  .exbody{padding:13px}
+}
+
+@media(max-width:360px){
+  .btn{padding:4px 7px;font-size:9.5px}
+  .xp-tag{font-size:9px;padding:2px 6px}
 }
 </style>
 </head>
 <body>
-<div class="app">
+<div class="shell">
 
-<!-- TOPBAR -->
-<div class="topbar">
-  <div class="logo"><span class="logo-bracket">[</span>Py<span style="color:var(--text2)">Sec</span>Academy<span class="logo-bracket">]</span></div>
-  <div class="topbar-center">
-    <span class="progress-label" id="progressLabel">0 / 24 leçons</span>
-    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+<!-- TOP BAR -->
+<header class="topbar">
+  <button class="hamburger" id="hbg" aria-label="Menu" onclick="toggleSB()">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="logo">
+    <span class="logo-mute">[</span>py<span style="color:var(--fg2)">sec</span>_<span class="logo-mute">]</span>
   </div>
-  <div class="xp-badge">⚡ <span id="xpCount">0</span> XP</div>
-</div>
+  <div class="tb-mid">
+    <span class="prog-lbl" id="progLbl">0/0</span>
+    <div class="prog-rail"><div class="prog-bar" id="progBar" style="width:0%"></div></div>
+  </div>
+  <div class="xp-tag">⚡ <span id="xpVal">0</span> xp</div>
+</header>
+
+<!-- OVERLAY -->
+<div class="sidebar-overlay" id="sbOver" onclick="closeSB()"></div>
 
 <!-- SIDEBAR -->
-<div class="sidebar" id="sidebar"></div>
+<nav class="sidebar" id="sb"></nav>
 
 <!-- MAIN -->
-<div class="main">
-  <div class="content-area" id="contentArea"></div>
-</div>
+<main class="main">
+  <div class="content" id="content"></div>
+</main>
 
-</div>
+</div><!-- .shell -->
 
 <!-- MODAL -->
-<div class="modal-overlay" id="modal">
+<div class="overlay" id="modal">
   <div class="modal">
-    <h3 id="modalTitle">Exercice réussi !</h3>
-    <div class="modal-xp" id="modalXp">+50 XP</div>
-    <p id="modalText">Bien joué ! Ton code produit le bon résultat.</p>
-    <button class="btn btn-next" onclick="closeModal()">Continuer →</button>
+    <h3 id="mTitle">Exercice réussi !</h3>
+    <div class="modal-xp" id="mXp">+50 xp</div>
+    <p id="mText"></p>
+    <button class="btn b-next" onclick="closeModal()">Continuer →</button>
   </div>
 </div>
 
@@ -598,252 +1165,250 @@ r3 = sess.get("http://target", headers=headers, timeout=5)`,
   }
 ];
 
+function toggleSB(){
+  const sb  = document.getElementById('sb');
+  const ov  = document.getElementById('sbOver');
+  const hbg = document.getElementById('hbg');
+  const open = sb.classList.toggle('open');
+  ov.classList.toggle('on', open);
+  hbg.classList.toggle('open', open);
+}
+function closeSB(){
+  document.getElementById('sb').classList.remove('open');
+  document.getElementById('sbOver').classList.remove('on');
+  document.getElementById('hbg').classList.remove('open');
+}
+
+/* ─── STATE ───────────────────────────────── */
 let state = {
   currentLesson: null,
-  currentExercise: 0,
   completed: new Set(JSON.parse(localStorage.getItem('pyc_done')||'[]')),
   xp: parseInt(localStorage.getItem('pyc_xp')||'0'),
-  showSolutions: new Set()
 };
-
 function save(){
   localStorage.setItem('pyc_done', JSON.stringify([...state.completed]));
   localStorage.setItem('pyc_xp', state.xp);
 }
-
-function updateXP(n){
+function addXP(n){
   state.xp += n;
-  document.getElementById('xpCount').textContent = state.xp;
+  document.getElementById('xpVal').textContent = state.xp;
   save();
 }
-
 function updateProgress(){
   const total = CURRICULUM.reduce((a,m)=>a+m.lessons.reduce((b,l)=>b+l.exercises.length,0),0);
   const done  = state.completed.size;
-  document.getElementById('progressLabel').textContent = `${done} / ${total} exercices`;
-  document.getElementById('progressFill').style.width = (done/total*100)+'%';
+  document.getElementById('progLbl').textContent = `${done}/${total} ex`;
+  document.getElementById('progBar').style.width = total ? (done/total*100)+'%' : '0%';
 }
 
+/* ─── SIDEBAR BUILD ───────────────────────── */
 function buildSidebar(){
-  const sb = document.getElementById('sidebar');
-  sb.innerHTML = '';
-  let html = '';
+  let h = '';
   CURRICULUM.forEach((mod,mi)=>{
-    html += `<div class="sidebar-section">
-      <div class="sidebar-label">Module ${mi+1}</div>
-      <button class="module-btn" onclick="openModule('${mod.id}')">
-        <span class="dot"></span>${mod.title}
+    h += `<div class="sb-mod">
+      <span class="sb-lbl">Module ${mi+1}</span>
+      <button class="mod-btn" onclick="openModule('${mod.id}')">
+        <span class="mod-pip"></span>${mod.title}
       </button>`;
     mod.lessons.forEach(l=>{
-      const done = l.exercises.every(e=>state.completed.has(e.id));
-      html += `<button class="lesson-btn ${done?'done':''}" id="btn_${l.id}" onclick="openLesson('${mod.id}','${l.id}')">
-        ${done?'<span class="tick">✓</span>':'○'} ${l.title}
+      const ok = l.exercises.every(e=>state.completed.has(e.id));
+      h += `<button class="les-btn ${ok?'ok':''}" id="btn_${l.id}" onclick="openLesson('${mod.id}','${l.id}');closeSB()">
+        ${ok?'<span class="chk">✓</span>':'○'} ${l.title}
       </button>`;
     });
-    html += `<button class="lesson-btn" onclick="openProject('${mod.id}')">
-      ◈ Projet final
-    </button></div>`;
+    h += `<button class="les-btn" onclick="openProject('${mod.id}');closeSB()">◈ Projet</button>
+    </div>`;
   });
-  sb.innerHTML = html;
+  document.getElementById('sb').innerHTML = h;
 }
 
-function openModule(modId){
+/* ─── NAVIGATION ──────────────────────────── */
+function openModule(id){
+  const m = CURRICULUM.find(m=>m.id===id);
+  if(m && m.lessons.length) openLesson(id, m.lessons[0].id);
+}
+function openLesson(modId, lesId){
   const mod = CURRICULUM.find(m=>m.id===modId);
-  if(mod && mod.lessons.length) openLesson(modId, mod.lessons[0].id);
+  const les = mod.lessons.find(l=>l.id===lesId);
+  state.currentLesson = les;
+  document.querySelectorAll('.les-btn').forEach(b=>b.classList.remove('on'));
+  const b = document.getElementById('btn_'+lesId);
+  if(b) b.classList.add('on');
+  renderLesson(mod, les);
 }
 
-function openLesson(modId, lessonId){
-  const mod = CURRICULUM.find(m=>m.id===modId);
-  const lesson = mod.lessons.find(l=>l.id===lessonId);
-  state.currentLesson = lesson;
-  state.currentExercise = 0;
-
-  document.querySelectorAll('.lesson-btn').forEach(b=>b.classList.remove('active'));
-  const btn = document.getElementById('btn_'+lessonId);
-  if(btn) btn.classList.add('active');
-
-  renderLesson(mod, lesson);
-}
-
-function renderLesson(mod, lesson){
-  const ca = document.getElementById('contentArea');
-  let html = `<div class="fade-in">
-    <div class="lesson-header">
-      <span class="lesson-tag ${mod.tagClass}">${mod.level}</span>
-      <div class="lesson-title">${lesson.title}</div>
-      <div class="lesson-desc">${mod.title} · Module ${CURRICULUM.indexOf(mod)+1}</div>
+/* ─── RENDER LESSON ───────────────────────── */
+function renderLesson(mod, les){
+  const ca = document.getElementById('content');
+  ca.innerHTML = `<div class="fu">
+    <div class="lh">
+      <span class="l-tag ${tagCls(mod.tagClass)}">${mod.level}</span>
+      <div class="l-title">${les.title}</div>
+      <div class="l-meta">${mod.title} · Module ${CURRICULUM.indexOf(mod)+1}</div>
     </div>
     <div class="tabs">
-      <button class="tab active" onclick="switchTab('theory','${lesson.id}')">Théorie</button>
-      <button class="tab" onclick="switchTab('exercises','${lesson.id}')">Exercices (${lesson.exercises.length})</button>
+      <button class="tab-btn on" id="tb_theory_${les.id}" onclick="switchTab('theory','${les.id}')">Théorie</button>
+      <button class="tab-btn" id="tb_exercises_${les.id}" onclick="switchTab('exercises','${les.id}')">Exercices (${les.exercises.length})</button>
     </div>
-    <div class="tab-content active" id="tab_theory_${lesson.id}">
-      <div class="theory-block">
-        <h3>Concept</h3>
-        <p>${lesson.theory}</p>
-      </div>
-      <div class="code-block">
-        <div class="code-header">
-          <span class="code-lang">python</span>
-          <button class="copy-btn" onclick="copyCode(this)">copier</button>
-        </div>
-        <div class="code-body">${syntaxHL(lesson.code)}</div>
+    <div class="tc on" id="tab_theory_${les.id}">
+      <div class="theory"><h3>Concept</h3><p>${les.theory}</p></div>
+      <div class="cblock">
+        <div class="cblock-top"><span class="c-lang">python</span><button class="c-copy" onclick="copyCode(this)">copier</button></div>
+        <div class="c-body">${hl(les.code)}</div>
       </div>
     </div>
-    <div class="tab-content" id="tab_exercises_${lesson.id}">
-      ${lesson.exercises.map((ex,i)=>renderExercise(ex,i)).join('')}
+    <div class="tc" id="tab_exercises_${les.id}">
+      ${les.exercises.map((ex,i)=>renderEx(ex,i)).join('')}
     </div>
   </div>`;
-  ca.innerHTML = html;
   ca.scrollTop = 0;
 }
 
-function renderExercise(ex, idx){
-  const done = state.completed.has(ex.id);
-  return `<div class="exercise-card" id="excard_${ex.id}">
-    <div class="ex-header">
-      <div class="ex-title">
-        ${done?'<span style="color:var(--green)">✓</span>':''}
-        Exercice ${idx+1} — ${ex.title}
+function tagCls(old){
+  const map={
+    'tag-beginner':'t-beg',
+    'tag-intermediate':'t-int',
+    'tag-advanced':'t-adv',
+    'tag-expert':'t-exp'
+  };
+  return map[old]||'t-beg';
+}
+
+function renderEx(ex, idx){
+  const ok = state.completed.has(ex.id);
+  return `<div class="excard" id="ec_${ex.id}">
+    <div class="exhead">
+      <div class="extitle">
+        ${ok?'<span style="color:var(--lime)">✓</span>':''}
+        <span>Ex.${idx+1} — ${ex.title}</span>
       </div>
-      <span class="ex-badge">+${ex.xp} XP</span>
+      <span class="xp-pill">+${ex.xp} xp</span>
     </div>
-    <div class="ex-body">
+    <div class="exbody">
       <p>${ex.desc.replace(/\n/g,'<br>')}</p>
-      <div class="expected">
-        <div class="expected-label">Résultat attendu</div>
+      <div class="expected-box">
+        <div class="exp-lbl">Résultat attendu</div>
         <pre>${ex.expected}</pre>
       </div>
-      <div class="editor-wrapper">
-        <div class="editor-toolbar">
-          <div class="editor-dot d-red"></div>
-          <div class="editor-dot d-amber"></div>
-          <div class="editor-dot d-green"></div>
-          <span class="editor-filename">exercice_${idx+1}.py</span>
+      <div class="edwrap">
+        <div class="edbar">
+          <span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span>
+          <span class="ed-fname">ex${idx+1}.py</span>
         </div>
-        <textarea class="code-editor" id="ed_${ex.id}" spellcheck="false">${ex.starter}</textarea>
+        <textarea class="editor" id="ed_${ex.id}" spellcheck="false">${ex.starter}</textarea>
       </div>
-      <div class="editor-actions">
-        <button class="btn btn-run" onclick="runCheck('${ex.id}')">▶ Vérifier</button>
-        <button class="btn btn-hint" onclick="toggleHint('${ex.id}')">Indice</button>
-        <button class="btn btn-solution" onclick="toggleSolution('${ex.id}')">Corrigé</button>
+      <div class="btns">
+        <button class="btn b-run"  onclick="runCheck('${ex.id}')">▶ Vérifier</button>
+        <button class="btn b-hint" onclick="toggleHint('${ex.id}')">Indice</button>
+        <button class="btn b-sol"  onclick="toggleSol('${ex.id}')">Corrigé</button>
       </div>
-      <div class="hint-panel" id="hint_${ex.id}">${ex.hint}</div>
-      <div class="output-panel" id="out_${ex.id}">
-        <div class="output-header">output</div>
-        <div class="output-body" id="outbody_${ex.id}"></div>
+      <div class="hint" id="hint_${ex.id}">${ex.hint}</div>
+      <div class="outpanel" id="out_${ex.id}">
+        <div class="outhdr">output</div>
+        <div class="outbody" id="ob_${ex.id}"></div>
       </div>
-      <div class="solution-panel" id="sol_${ex.id}">
-        <div class="solution-label">Corrigé</div>
-        <div class="code-block">
-          <div class="code-header"><span class="code-lang">python</span></div>
-          <div class="code-body">${syntaxHL(ex.solution)}</div>
+      <div class="solpanel" id="sol_${ex.id}">
+        <div class="sol-lbl">Corrigé</div>
+        <div class="cblock">
+          <div class="cblock-top"><span class="c-lang">python</span></div>
+          <div class="c-body">${hl(ex.solution)}</div>
         </div>
       </div>
     </div>
   </div>`;
 }
 
-function switchTab(tab, lessonId){
-  document.querySelectorAll(`[id^="tab_"]`).forEach(el=>{
-    if(el.id.includes(lessonId)) el.classList.remove('active');
+/* ─── TAB SWITCH ──────────────────────────── */
+function switchTab(tab, lesId){
+  ['theory','exercises'].forEach(t=>{
+    document.getElementById('tab_'+t+'_'+lesId)?.classList.toggle('on', t===tab);
+    document.getElementById('tb_'+t+'_'+lesId)?.classList.toggle('on', t===tab);
   });
-  document.querySelectorAll('.tab').forEach((t,i)=>{
-    t.classList.toggle('active', (tab==='theory'&&i===0)||(tab==='exercises'&&i===1));
-  });
-  document.getElementById(`tab_${tab}_${lessonId}`).classList.add('active');
 }
 
+/* ─── RUN CHECK ───────────────────────────── */
 function runCheck(exId){
-  const lesson = state.currentLesson;
-  const ex = lesson.exercises.find(e=>e.id===exId);
-  const code = document.getElementById('ed_'+exId).value;
+  const les = state.currentLesson;
+  const ex  = les.exercises.find(e=>e.id===exId);
+  const code= document.getElementById('ed_'+exId).value;
   const out = document.getElementById('out_'+exId);
-  const outbody = document.getElementById('outbody_'+exId);
-  out.classList.add('visible');
-
-  const passed = ex.check(code);
-  if(passed){
-    outbody.className = 'output-body success';
-    outbody.textContent = '✓ Code valide ! La structure correspond à l\'exercice.';
+  const ob  = document.getElementById('ob_'+exId);
+  out.classList.add('on');
+  if(ex.check(code)){
+    ob.className='outbody ok';
+    ob.textContent='✓ Structure correcte !';
     if(!state.completed.has(exId)){
       state.completed.add(exId);
-      updateXP(ex.xp);
-      save();
-      updateProgress();
-      showModal('Exercice réussi !', `+${ex.xp} XP`, `Bien joué ! La logique de ton code est correcte.`);
-      document.getElementById('excard_'+exId).querySelector('.ex-title').innerHTML =
-        `<span style="color:var(--green)">✓</span> ${ex.title}`;
-      const btn = document.getElementById('btn_'+lesson.id);
-      if(btn && lesson.exercises.every(e=>state.completed.has(e.id))){
-        btn.classList.add('done');
-        btn.querySelector('.tick') || (btn.innerHTML = btn.innerHTML.replace('○','<span class="tick">✓</span>'));
+      addXP(ex.xp); save(); updateProgress();
+      showModal('Exercice réussi !',`+${ex.xp} xp`,`Bien joué !`);
+      document.getElementById('ec_'+exId).querySelector('.extitle').innerHTML =
+        `<span style="color:var(--lime)">✓</span><span>Ex — ${ex.title}</span>`;
+      const b = document.getElementById('btn_'+les.id);
+      if(b && les.exercises.every(e=>state.completed.has(e.id))){
+        b.classList.add('ok');
+        b.innerHTML = b.innerHTML.replace('○','<span class="chk">✓</span>');
       }
     }
   } else {
-    outbody.className = 'output-body error';
-    outbody.textContent = '✗ Pas encore. Vérifie la logique ou utilise l\'indice.';
+    ob.className='outbody err';
+    ob.textContent='✗ Pas encore — vérifie la logique ou clique sur Indice.';
   }
 }
 
-function toggleHint(exId){
-  const h = document.getElementById('hint_'+exId);
-  h.classList.toggle('visible');
-}
-
-function toggleSolution(exId){
-  const s = document.getElementById('sol_'+exId);
-  s.classList.toggle('visible');
-}
+function toggleHint(id){ document.getElementById('hint_'+id).classList.toggle('on') }
+function toggleSol(id) { document.getElementById('sol_'+id).classList.toggle('on')  }
 
 function copyCode(btn){
-  const code = btn.closest('.code-block').querySelector('.code-body').textContent;
-  navigator.clipboard.writeText(code).then(()=>{
+  const txt = btn.closest('.cblock').querySelector('.c-body').textContent;
+  navigator.clipboard.writeText(txt).then(()=>{
     btn.textContent='copié !';
     setTimeout(()=>btn.textContent='copier',1500);
   });
 }
 
+/* ─── PROJECT ─────────────────────────────── */
 function openProject(modId){
-  const mod = CURRICULUM.find(m=>m.id===modId);
+  const mod  = CURRICULUM.find(m=>m.id===modId);
   const proj = mod.project;
-  const ca = document.getElementById('contentArea');
-  ca.innerHTML = `<div class="fade-in">
-    <div class="lesson-header">
-      <span class="lesson-tag ${mod.tagClass}">Projet</span>
-      <div class="lesson-title">${proj.title}</div>
-      <div class="lesson-desc">${mod.title} · Projet final</div>
+  const ca   = document.getElementById('content');
+  ca.innerHTML = `<div class="fu">
+    <div class="lh">
+      <span class="l-tag ${tagCls(mod.tagClass)}">Projet</span>
+      <div class="l-title">${proj.title}</div>
+      <div class="l-meta">${mod.title} · Projet final</div>
     </div>
-    <div class="project-card">
-      <div class="project-desc">${proj.desc}</div>
-      <div class="project-tags">${proj.tags.map(t=>`<span class="ptag">${t}</span>`).join('')}</div>
-      <p style="font-family:var(--mono);font-size:12px;color:var(--text2);margin-bottom:16px">
-        Essaie de le coder toi-même en utilisant tout ce que tu as appris dans le module. Quand tu es prêt, compare avec le corrigé.
+    <div class="projcard">
+      <div class="proj-desc">${proj.desc}</div>
+      <div class="proj-tags">${proj.tags.map(t=>`<span class="ptag">${t}</span>`).join('')}</div>
+      <p style="font-family:var(--mono);font-size:11px;color:var(--fg3);margin-bottom:13px">
+        Code-le toi-même d'abord. Compare ensuite avec le corrigé.
       </p>
-      <div class="project-actions">
-        <button class="btn btn-solution" onclick="document.getElementById('proj_sol_${mod.id}').classList.toggle('visible')">Voir le corrigé</button>
+      <div style="display:flex;gap:7px">
+        <button class="btn b-sol" onclick="document.getElementById('psol_${mod.id}').classList.toggle('on')">Voir le corrigé</button>
       </div>
     </div>
-    <div class="solution-panel" id="proj_sol_${mod.id}">
-      <div class="solution-label">Corrigé complet</div>
-      <div class="code-block">
-        <div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">copier</button></div>
-        <div class="code-body">${syntaxHL(proj.solution)}</div>
+    <div class="solpanel" id="psol_${mod.id}">
+      <div class="sol-lbl">Corrigé complet</div>
+      <div class="cblock">
+        <div class="cblock-top"><span class="c-lang">python</span><button class="c-copy" onclick="copyCode(this)">copier</button></div>
+        <div class="c-body">${hl(proj.solution)}</div>
       </div>
     </div>
   </div>`;
   ca.scrollTop = 0;
 }
 
-function showModal(title, xp, text){
-  document.getElementById('modalTitle').textContent = title;
-  document.getElementById('modalXp').textContent = xp;
-  document.getElementById('modalText').textContent = text;
-  document.getElementById('modal').classList.add('visible');
+/* ─── MODAL ───────────────────────────────── */
+function showModal(title,xp,text){
+  document.getElementById('mTitle').textContent = title;
+  document.getElementById('mXp').textContent    = xp;
+  document.getElementById('mText').textContent  = text;
+  document.getElementById('modal').classList.add('on');
 }
-function closeModal(){ document.getElementById('modal').classList.remove('visible'); }
+function closeModal(){ document.getElementById('modal').classList.remove('on') }
 
-function syntaxHL(code){
+/* ─── SYNTAX HIGHLIGHT ────────────────────── */
+function hl(code){
   return code
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/#.*$/gm, m=>`<span class="cm">${m}</span>`)
@@ -852,29 +1417,31 @@ function syntaxHL(code){
     .replace(/\b(\d+)\b/g, m=>`<span class="num">${m}</span>`);
 }
 
+/* ─── WELCOME ─────────────────────────────── */
 function showWelcome(){
   const total = CURRICULUM.reduce((a,m)=>a+m.lessons.reduce((b,l)=>b+l.exercises.length,0),0);
-  document.getElementById('contentArea').innerHTML = `<div class="welcome fade-in">
-    <div class="welcome-ascii">____          ____                  _
+  document.getElementById('content').innerHTML = `<div class="welcome fu">
+    <pre class="w-ascii">____          ____                  _
 |  _ \\  _   _/ ___|  ___  ___     / \\  ___ __ _
 | |_) || | | \\___ \\ / _ \\/ __|   / _ \\/ __/ _\` |
 |  __/ | |_| |___) |  __/ (__   / ___ \\ (_| (_| |
 |_|     \\__, |____/ \\___|\\___|  /_/   \\_\\___\\__,_|
-         |___/</div>
+         |___/</pre>
     <h1>Python × Cybersecurity</h1>
-    <p>Formation complète orientée outils offensifs — des bases jusqu'aux exploits. Code des vrais outils, pas juste des exercices académiques.</p>
-    <div class="welcome-grid">
-      <div class="welcome-stat"><div class="num">${CURRICULUM.length}</div><div class="lbl">Modules</div></div>
-      <div class="welcome-stat"><div class="num">${total}</div><div class="lbl">Exercices</div></div>
-      <div class="welcome-stat"><div class="num">${CURRICULUM.reduce((a,m)=>a+1,0)}</div><div class="lbl">Projets</div></div>
+    <p>Formation complète orientée outils offensifs — des bases jusqu'aux exploits réels.</p>
+    <div class="w-grid">
+      <div class="w-stat"><div class="n">${CURRICULUM.length}</div><div class="l">Modules</div></div>
+      <div class="w-stat"><div class="n">${total}</div><div class="l">Exercices</div></div>
+      <div class="w-stat"><div class="n">${CURRICULUM.length}</div><div class="l">Projets</div></div>
     </div>
-    <button class="btn-start" onclick="openLesson('m1','m1l1')">Commencer le Module 1 →</button>
+    <button class="w-start" onclick="openLesson('m1','m1l1')">Commencer →</button>
   </div>`;
 }
 
+/* ─── INIT ────────────────────────────────── */
 buildSidebar();
 updateProgress();
-document.getElementById('xpCount').textContent = state.xp;
+document.getElementById('xpVal').textContent = state.xp;
 showWelcome();
 </script>
 </body>
